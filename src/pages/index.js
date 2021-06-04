@@ -1,13 +1,7 @@
-import Main from 'components/Main';
+import HelloWorld from 'components/HelloWorld';
 
-export default function Home({ value }) {
-  return <Main/>
-}
-
-export async function getStaticProps(context) {
-  return {
-    props: {
-      value: 1
-    },
-  }
+export default function Home({
+  ...props
+}) {
+  return <HelloWorld {...props}/>
 }
