@@ -1,6 +1,6 @@
 
 ## NextJS Boilerplate
-> A simple boilerplate using NextJS, Redux SAGA, Styled Components and Styled System
+> A simple boilerplate using NextJS and Styled Components
 ## Getting Started
 
 ```sh
