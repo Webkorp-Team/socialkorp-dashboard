@@ -1,6 +1,5 @@
 import { StyleSheetManager } from 'styled-components';
 import Head from 'next/head';
-import { wrapper } from 'store/store';
 
 import initResponsiveToolkit from 'styled-components-responsive-toolkit';
 import cssReset from 'css-config/css-reset';
@@ -34,4 +33,4 @@ function App({ Component, pageProps }) {
   )
 }
 
-export default wrapper.withRedux(App);
+export default App;
