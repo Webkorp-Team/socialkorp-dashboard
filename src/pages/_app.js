@@ -1,4 +1,5 @@
-import { StyleSheetManager } from 'styled-components';
+import { StyleSheetManager, ThemeProvider } from 'styled-components';
+import theme from 'styles/theme';
 import Head from 'next/head';
 
 import initResponsiveToolkit from 'styled-components-responsive-toolkit';
@@ -26,9 +27,11 @@ function App({ Component, pageProps }) {
         <meta name="description" content="A simple project starter with Nextjs" />
       </Head>
       <GlobalStyles/>
-      <StyleSheetManager stylisPlugins={plugins}>
-        <Component {...pageProps} />
-      </StyleSheetManager>
+      <ThemeProvider theme={ theme }>
+        <StyleSheetManager stylisPlugins={plugins}>
+          <Component {...pageProps} />
+        </StyleSheetManager>
+      </ThemeProvider>
     </>
   )
 }
