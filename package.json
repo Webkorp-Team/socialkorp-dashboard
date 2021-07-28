@@ -16,6 +16,7 @@
     "styled-components-responsive-toolkit": "github:Webkorp-Team/styled-components-responsive-toolkit"
   },
   "devDependencies": {
+    "@svgr/webpack": "^5.5.0",
     "babel-plugin-styled-components": "^1.12.0",
     "redux-devtools-extension": "^2.13.9"
   }
