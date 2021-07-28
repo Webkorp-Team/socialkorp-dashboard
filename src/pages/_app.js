@@ -22,9 +22,9 @@ function App({ Component, pageProps }) {
   return (
     <>
       <Head>
-        <title>Boilerplate</title>
-        <link rel="shortcut icon" href="/img/favicon.ico" />
-        <meta name="description" content="A simple project starter with Nextjs" />
+        <title>Future HealthSpaces</title>
+        {/* <link rel="shortcut icon" href="/img/favicon.ico" /> */}
+        {/* <meta name="description" content="A simple project starter with Nextjs" /> */}
       </Head>
       <GlobalStyles/>
       <ThemeProvider theme={ theme }>
