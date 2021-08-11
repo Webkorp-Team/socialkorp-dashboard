@@ -13,7 +13,7 @@ const issuer = 'socialkorp.com';
 const audience = 'admin.futurehealthspaces.com';
 
 const refreshTokenExpirationTimeInDays = 7;
-const accessTokenExpirationTimeInMinutes = 120;
+const accessTokenExpirationTimeInMinutes = 15;
 
 class RefreshToken{
   static #hash(token){
@@ -24,8 +24,6 @@ class RefreshToken{
     const refreshTokenHash = RefreshToken.#hash(refreshToken);
     const collection = new Database('auth').collection('refreshTokens');
 
-    console.log({refreshToken,refreshTokenHash});
-
     await collection.set(refreshTokenHash,{
       sub: subject,
       exp: Date.now() + refreshTokenExpirationTimeInDays*24*3600*1000,
@@ -33,28 +31,29 @@ class RefreshToken{
 
     return refreshToken;
   }
-  static async validate(expectedSubject,refreshToken){ // returns boolean
+  static async validate(expectedSubject,refreshToken){ // returns boolean(true)
+    if(!expectedSubject || !refreshToken)
+      throw new Error('Invalid refresh token');
+
     const refreshTokenHash = RefreshToken.#hash(refreshToken);
     const collection = new Database('auth').collection('refreshTokens');
 
     const data = await collection.get(refreshTokenHash);
 
-    console.log({refreshToken,refreshTokenHash});
-
     if(!data)
-      return false;
+      throw new Error('Invalid refresh token');
 
     const {
       sub: subject,
       exp: expirationTime
     } = data;
 
-    if(!expectedSubject || expectedSubject !== subject)
-      return false;
+    if(expectedSubject !== subject)
+      throw new Error('Invalid refresh token');
 
-    if(expirationTime > Date.now()){
+    if(Date.now() > expirationTime){
       this.revoke(refreshToken);
-      return false;
+      throw new Error('Invalid refresh token');
     }
 
     return true;
@@ -69,7 +68,7 @@ class RefreshToken{
 
 export default class Token{
 
-  static async generate(subject,payload){ // returns {accessToken,refreshToken}
+  static async generate(subject,payload={}){ // returns {accessToken,refreshToken}
     const accessToken = await new SignJWT(payload)
       .setProtectedHeader({ alg: 'RS256' })
       .setIssuedAt()
@@ -83,22 +82,20 @@ export default class Token{
 
     return {accessToken,refreshToken};
   }
-  static async refresh(subject,payload,refreshToken){ // returns {accessToken,refreshToken}
-    if(!await RefreshToken.validate(subject,refreshToken))
-      throw new Error('Invalid refresh token');
+  static async refresh(subject,refreshToken,payload={}){ // returns {accessToken,refreshToken}
+    await RefreshToken.validate(subject,refreshToken);
     
     await RefreshToken.revoke(refreshToken);
 
     return await this.generate(subject,payload);
   }
-  static async validate(subject,accessToken){ // returns payload
+  static async verify(accessToken){ // returns payload
     const { payload } = await jwtVerify(
       accessToken,
       publicKey,
       {
         issuer,
         audience,
-        subject
       }
     );
 

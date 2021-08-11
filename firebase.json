@@ -11,6 +11,14 @@
         {
           "source": "/dashboard",
           "destination": "/dashboard.html"
+        },
+        {
+          "source": "/api/v1/user/login",
+          "function": "loginUser"
+        },
+        {
+          "source": "/api/v1/user/refreshLogin",
+          "function": "refreshUserLogin"
         }
       ]
     }

@@ -16,6 +16,9 @@ export default class Collection{
   }
 
   async get(key) {
+    if(!key)
+      return null;
+
     const doc = await firestore.collection(
       makeKey(this.databaseName, this.collectionName)
     ).doc(key).get();

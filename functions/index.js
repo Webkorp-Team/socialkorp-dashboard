@@ -1,37 +1,111 @@
 import './init.js';
+import cookie from 'cookie';
 import Auth from './auth/index.js';
 import functions from 'firebase-functions';
-import util from 'util';
-import crypto from 'crypto';
+import Users from './users/index.js';
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
 
+// Auth.Token.generate('mateus',{}).then(result => console.log(result));
+
+// Users.create('mateus','1234',{});
+
+
+function managedHandler(method,handler){
+  return (req,res)=>{
+    try{
+      if(req.method !== method)
+        return res.sendStatus(405);
+      req.cookies = req.headers.cookies ? cookie.parse(req.headers.cookies) : {};
+      return handler(req,res).catch(e => {
+        return res.status(500).send(e.stack);
+      });
+    }catch(e){
+      return res.status(500).send(e.stack);
+    }
+  };
+}
+function makePublicEndpoint(method,handler){
+  return functions.https.onRequest(managedHandler(method,handler));
+}
+function makeEndpoint(method,handler){
+  return functions.https.onRequest((req,res)=>{
+    const authorization = req.get('authorization');
+    if(!authorization)
+      return res.sendStatus(401);
+    const [type,token] = authorization.split(' ');
+    if(type !== 'Bearer')
+      return res.status(400).send('Invalid authorization type');
+    return Auth.Token.verify(token).then(payload => {
+      const {sub: subject} = payload;
+      if(!subject)
+        return res.status(401).send('Missing subject');
+      req.subject = subject;
+      return managedHandler(method,handler)(req,res);
+    }).catch(e => {
+      res.status(401).send(e.toString());
+    });
+  });
+}
+
+export const createUser = makeEndpoint('POST',async (req,res)=>{
+  const {email,password,userData} = req.body;
+// 
+  await Users.create(email,password,userData);
+
+  res.sendStatus(201);
+});
+export const deleteUser = makeEndpoint('POST',async (req,res)=>{
+  const {email} = req.body;
+
+  await Users.delete(email);
+
+  res.sendStatus(204);
+});
+export const updateUser = makeEndpoint('POST',async (req,res)=>{
+  const {email,password,userData} = req.body;
+
+  await Users.update(email,password,userData);
+
+  res.sendStatus(204);
+});
+export const loginUser = makePublicEndpoint('POST',async (req,res)=>{
+  const {email,password} = req.body;
+
+  const {accessToken,refreshToken,userData} = await Users.login(email,password);
+
+  res.cookie('refreshToken',refreshToken,{
+    sameSite: 'Strict',
+    httpOnly: true,
+    secure: true,
+  });
+
+  res.send({
+    accessToken,
+    userData,
+  });
+});
+export const refreshUserLogin = makePublicEndpoint('POST',async (req,res)=>{
+
+  const {email} = req.body;
+
+  const {refreshToken: currentRefreshToken} = req.cookies;
+
+  if(!email || !currentRefreshToken)
+    return res.sendStatus(401);
+
+  const {accessToken,refreshToken} = await Users.refreshLogin(email,currentRefreshToken);
+
+  res.cookie('refreshToken',refreshToken,{
+    sameSite: 'Strict',
+    httpOnly: true,
+    secure: true,
+  });
+
+  res.send({accessToken});
+});
+
+// export const helloWorld = handlerWrapper(()=>{});
   
-
-//   response.send(
-//     ''
-  
-//   );
-// });
-
-// Auth.Token.generate('asd',{})
-Auth.Token.validate('asd',
-'eyJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2Mjg2NDgzNjksImlzcyI6InNvY2lhbGtvcnAuY29tIiwiYXVkIjoiYWRtaW4uZnV0dXJlaGVhbHRoc3BhY2VzLmNvbSIsInN1YiI6ImFzZCIsImV4cCI6MTYyODY1NTU2OX0.Wg_7bhoNwRFkh1IxjxkYGrz2RuulzBCD7U6oT_1D4c90HFLjgtC-vnGV2OlAIA1hn3Nchb_5Z-GFYygYfEvaFNKE3mpr1WlaONzc4FToXsnoeV2gGjQqDKz3J_apnCcEUCwu46Zlfp2GzeWSRI3lu7LSeXCgWLDf1JPBBzd3DEe6BSXrzDBh2W1EXeyOFQd6f15Y8eMwPzcAV8KHcHD6IFS6sXfp7LDtxpg8u7s_k0eXy6vfPc6_Y7ybobi58Li-uXSuPB9WcXRBVrBRbB2O3vU5TcPAqub0hQC_42JqFEfGpiBwLrGRUoAdjhNOFlJU3UxWH3kkJXm6SzEN4zg9Rb7ndVvyre9fItFulLV3IhLez7u66NciPXn5Z4nmWwaVFiOc7OmEV-Bxbh2UvAaHZOTTm9IBIwLSGWEzzbGxCwGq1gX26KiJtR4GcS8M5_ICnrRbJ-YYaflk2Jeq495YlwYJi1dHiCykDEIodzZ51du8wrJZhzjrcBvfPw9-fj17vTzGXDXhAmNJmEOuZedwktJjdPvCrM-F63LEWKVXLppSPHeMzOlnf-np25e6E_4n1vOyfpLxhf1pzuF5ToISXBbpgakFdNhPXZvFk7kraVaYGDOyMyKKDOGRevVuurlsuetpfVSISpsj-Ka2Gpndis4XvDV3CGvfpmq2rJl0oMk'
-)
-// Auth.Token.refresh('asd',{},
-// 'lwshRskooJ1Q24rjhevkRKkd70ea0ufqsLuO6CS6nPs='
-// )
-
-
-
-.then(value => {
-  console.log(value);
-}).catch(err => {
-  throw err;
-})
 
 
 
