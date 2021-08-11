@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "future-healthspaces-website"
+  },
+  "targets": {
+    "future-healthspaces-website": {
+      "hosting": {
+        "admin": [
+          "future-healthspaces-admin"
+        ]
+      }
+    }
+  }
+}
