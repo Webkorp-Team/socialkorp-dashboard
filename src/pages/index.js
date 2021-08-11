@@ -1,7 +1,19 @@
-import HelloWorld from 'components/HelloWorld';
+import { useEffect } from "react";
 
 export default function Home({
   ...props
 }) {
-  return <HelloWorld {...props}/>
+  
+
+  useEffect(()=>{
+    if(window.localStorage.getItem('email') !== 'admin@futurehealthspaces.com')
+      window.location = '/login';
+    else
+      window.location = '/dashboard';
+  },[])
+
+
+  return <>
+
+  </>;
 }

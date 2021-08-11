@@ -1,4 +1,4 @@
-import Main from 'templates/login/Main';
+import Main from 'templates/Login/Main';
 
 export default function Login(){
 

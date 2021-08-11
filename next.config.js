@@ -4,6 +4,16 @@ module.exports = {
   future: {
     webpack5: true,
   },
+  exportPathMap: async function (
+    defaultPathMap,
+    { dev, dir, outDir, distDir, buildId }
+  ) {
+    return {
+      '/': { page: '/' },
+      '/login': { page: '/login' },
+      '/dashboard': { page: '/dashboard' },
+    }
+  },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
 
     // To test "npm link"ed packages with peer dependencies
@@ -12,11 +22,13 @@ module.exports = {
 
     // Adding SVG support
     config.module.rules.push({
-      test: /\.svg$/,
-      issuer: {
-        and: [/\.(js|ts)x?$/],
-      },
-      use: ['@svgr/webpack'],
+      test: [/\.svg$/, /\.woff$/],
+      loader: 'file-loader',
+      options: {
+          name: '[name].[hash:8].[ext]',
+          publicPath: `/_next/static/images/`, //specify the base path
+          outputPath: 'static/images', //and output path
+      }
     });
 
     return config;
