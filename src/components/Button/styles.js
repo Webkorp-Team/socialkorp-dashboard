@@ -25,5 +25,10 @@ export const Button = styled.button`
   &:active{
     filter: brightness(95%);
   }
+  &:disabled{
+    filter: saturate(0%);
+    opacity: 0.5;
+    cursor: default;
+  }
 `;
 

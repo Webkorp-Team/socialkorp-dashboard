@@ -4,28 +4,38 @@
       "target": "admin",
       "public": "build",
       "rewrites": [
-        {
-          "source": "/login",
-          "destination": "/login.html"
-        },
-        {
-          "source": "/dashboard",
-          "destination": "/dashboard.html"
-        },
-        {
-          "source": "/api/v1/user/login",
-          "function": "loginUser"
-        },
-        {
-          "source": "/api/v1/user/refreshLogin",
-          "function": "refreshUserLogin"
-        }
+
+        {"source": "/login",
+        "destination": "/login.html"},
+
+        {"source": "/dashboard",
+        "destination": "/dashboard.html"},
+
+        {"source": "/users",
+        "destination": "/users.html"},
+
+        {"source": "/api/v1/user/login",
+        "function": "loginUser"},
+
+        {"source": "/api/v1/user/logout",
+        "function": "logoutUser"},
+
+        {"source": "/api/v1/user/refreshLogin",
+        "function": "refreshUserLogin"},
+
+        {"source": "/api/v1/users",
+        "function": "listUsers"},
+
+        {"source": "/api/v1/user",
+        "function": "createUpdateDeleteUser"},
+
+        {"source": "/api/v1/ping",
+        "function": "ping"}
+
       ]
     }
   ],
   "functions": {
-    "predeploy": [
-      "npm --prefix \"$RESOURCE_DIR\" run lint"
-    ]
+    
   }
 }

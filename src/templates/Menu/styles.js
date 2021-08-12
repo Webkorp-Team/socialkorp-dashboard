@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
+import UnstyledLink from "components/Link";
 
 export const Root = styled.div`
   display: grid;
@@ -92,7 +93,7 @@ export const Section = styled.div`
     transition: opacity .25s, font-size 1s .25s;
   }
 `;
-export const Link = styled.a`
+export const Link = styled(UnstyledLink)`
   display: block;
   font-size: ${16/16}em;
   color: ${p => p.theme.colors.text};

@@ -5,17 +5,37 @@ import functions from 'firebase-functions';
 import Users from './users/index.js';
 
 
-// Auth.Token.generate('mateus',{}).then(result => console.log(result));
+// Auth.Token.generate('admin@futurehealthspaces.com',{}).then(result => console.log(result));
 
-// Users.create('mateus','1234',{});
+// Users.create('admin@futurehealthspaces.com','admin',{});
 
+
+const refreshTokenCookieOptions = {
+  sameSite: 'Strict',
+  httpOnly: true,
+  secure: true,
+}
 
 function managedHandler(method,handler){
   return (req,res)=>{
     try{
-      if(req.method !== method)
+      
+      // --- CORS ---
+      // res.set('Access-Control-Allow-Origin','http://localhost:3000');
+      // res.set('Access-Control-Allow-Headers','Authorization, Content-type');
+      // res.set('Access-Control-Allow-Credentials','true');
+      // if(req.method === 'OPTIONS'){
+      //   return res.sendStatus(204);
+      // }
+      // --- ---
+
+
+      if(
+        (Array.isArray(method) && !method.includes(req.method))
+        || (typeof method === 'string' && method !== req.method)
+      )
         return res.sendStatus(405);
-      req.cookies = req.headers.cookies ? cookie.parse(req.headers.cookies) : {};
+      req.cookies = req.headers.cookie ? cookie.parse(req.headers.cookie) : {};
       return handler(req,res).catch(e => {
         return res.status(500).send(e.stack);
       });
@@ -24,65 +44,102 @@ function managedHandler(method,handler){
     }
   };
 }
-function makePublicEndpoint(method,handler){
-  return functions.https.onRequest(managedHandler(method,handler));
+function makePublicEndpoint(methods,handler){
+  return functions.https.onRequest(managedHandler(methods,handler));
 }
-function makeEndpoint(method,handler){
+function makeEndpoint(methods,handler){
   return functions.https.onRequest((req,res)=>{
     const authorization = req.get('authorization');
     if(!authorization)
       return res.sendStatus(401);
     const [type,token] = authorization.split(' ');
     if(type !== 'Bearer')
-      return res.status(400).send('Invalid authorization type');
+      return res.status(401).send('Invalid authorization type');
     return Auth.Token.verify(token).then(payload => {
       const {sub: subject} = payload;
       if(!subject)
         return res.status(401).send('Missing subject');
       req.subject = subject;
-      return managedHandler(method,handler)(req,res);
+      return managedHandler(methods,handler)(req,res);
     }).catch(e => {
       res.status(401).send(e.toString());
     });
   });
 }
 
-export const createUser = makeEndpoint('POST',async (req,res)=>{
+/************* PING ************* */
+
+export const ping = makeEndpoint('GET',async (req,res)=>{
+  res.sendStatus(200);
+});
+
+/*********** USER ****************/
+
+const createUser = async (req,res)=>{
   const {email,password,userData} = req.body;
-// 
+
   await Users.create(email,password,userData);
 
   res.sendStatus(201);
-});
-export const deleteUser = makeEndpoint('POST',async (req,res)=>{
-  const {email} = req.body;
-
-  await Users.delete(email);
-
-  res.sendStatus(204);
-});
-export const updateUser = makeEndpoint('POST',async (req,res)=>{
+};
+const updateUser = async (req,res)=>{
   const {email,password,userData} = req.body;
 
   await Users.update(email,password,userData);
 
   res.sendStatus(204);
+};
+const deleteUser = async (req,res)=>{
+  const {email} = req.body;
+
+  await Users.delete(email);
+
+  res.sendStatus(204);
+};
+export const createUpdateDeleteUser = makeEndpoint(['POST','PUT','DELETE'],async (req,res)=>{
+  switch(req.method){
+    case 'POST':
+      return createUser(req,res);
+    case 'PUT':
+      return updateUser(req,res);
+    case 'DELETE':
+      return deleteUser(req,res);
+  }
 });
+export const listUsers = makeEndpoint('GET',async (req,res)=>{
+
+  const list = await Users.listAll();
+
+  res.send(list);
+});
+
+
+/*********** LOGIN / LOGOUT ****************/
+
 export const loginUser = makePublicEndpoint('POST',async (req,res)=>{
   const {email,password} = req.body;
 
-  const {accessToken,refreshToken,userData} = await Users.login(email,password);
+  try{
+    const {accessToken,refreshToken,userData} = await Users.login(email,password);
 
-  res.cookie('refreshToken',refreshToken,{
-    sameSite: 'Strict',
-    httpOnly: true,
-    secure: true,
-  });
+    res.cookie('refreshToken',refreshToken,refreshTokenCookieOptions);
 
-  res.send({
-    accessToken,
-    userData,
-  });
+    res.send({
+      accessToken,
+      userData,
+    });
+  }catch(error){
+    res.status(401).send(error.message);
+  }
+});
+export const logoutUser = makeEndpoint('POST',async (req,res)=>{
+  
+  const {refreshToken} = req.cookies;
+
+  if(refreshToken)
+    Users.logout(refreshToken);
+
+  res.sendStatus(200);
 });
 export const refreshUserLogin = makePublicEndpoint('POST',async (req,res)=>{
 
@@ -93,18 +150,18 @@ export const refreshUserLogin = makePublicEndpoint('POST',async (req,res)=>{
   if(!email || !currentRefreshToken)
     return res.sendStatus(401);
 
-  const {accessToken,refreshToken} = await Users.refreshLogin(email,currentRefreshToken);
+  try{
 
-  res.cookie('refreshToken',refreshToken,{
-    sameSite: 'Strict',
-    httpOnly: true,
-    secure: true,
-  });
+    const {accessToken,refreshToken} = await Users.refreshLogin(email,currentRefreshToken);
 
-  res.send({accessToken});
+    res.cookie('refreshToken',refreshToken,refreshTokenCookieOptions);
+
+    res.send({accessToken});
+  }catch(e){
+    res.status(401).send(e.message);
+  }
 });
 
-// export const helloWorld = handlerWrapper(()=>{});
   
 
 

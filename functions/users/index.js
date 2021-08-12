@@ -32,15 +32,32 @@ export default class Users{
     await Auth.Password.save(email,password);
   }
 
+  static async listAll(){
+    const map = await users.getMap();
+
+    const list = [];
+
+    for(const email of Object.keys(map))
+      list.push({
+        email,
+        userData: map[email],
+      });
+
+    return list;
+  }
+
   static async login(email,password){
-    if(!Auth.Password.verify(email,password))
+    if(!email || !password)
       throw new Error('Incorrect email and/or password');
 
-    const userData = users.get(email);
+    if(!await Auth.Password.verify(email,password))
+      throw new Error('Incorrect email and/or password');
+
+    const userData = await users.get(email);
 
     if(!userData){
       // database inconsistency
-      Auth.Password.delete(email);
+      await Auth.Password.delete(email);
       throw new Error('Incorrect email and/or password');
     }
 
@@ -52,9 +69,11 @@ export default class Users{
       userData
     };
   }
-
+  static async logout(refreshToken){
+    await Auth.Token.revoke(refreshToken);
+  }
   static async refreshLogin(email,currentRefreshToken){
-    if(!users.get(email))
+    if(!await users.get(email))
       throw new Error('Invalid refresh token');
 
     const {accessToken,refreshToken} = await Auth.Token.refresh(email,currentRefreshToken);

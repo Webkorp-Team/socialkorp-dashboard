@@ -37,7 +37,7 @@ export default function Menu({
         <span>Admin settings</span>
       </S.SectionTitle>
       <S.Section>
-        <S.Link>Users</S.Link>
+        <S.Link href="/users">Users</S.Link>
       </S.Section>
       <S.Separator/>
     </S.AlignTop>

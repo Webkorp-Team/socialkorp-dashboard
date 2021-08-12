@@ -8,7 +8,7 @@ export const TextField = styled.input.attrs(p=>{return{
   padding-bottom: 6px;
 
   color: ${p => p.theme.colors.text};
-  font-weight: 500;
+  font-weight: 400;
   font-size: 20px;
   
   &::placeholder{
@@ -19,6 +19,9 @@ export const TextField = styled.input.attrs(p=>{return{
   }
   &[data-invalid=true]{
     border-bottom-color: ${p => p.theme.colors.error};
+  }
+  &:disabled{
+    color: ${p => p.theme.colors.gray2};
   }
 `;
 

@@ -8,7 +8,7 @@ export default class Password{
     const passwordHash = await bcrypt.hash(password,cost);
     const collection = new Database('auth').collection('passwords');
 
-    collection.set(subject,passwordHash);
+    await collection.set(subject,passwordHash);
   }
   static async verify(subject,password){
     const collection = new Database('auth').collection('passwords');
@@ -24,7 +24,9 @@ export default class Password{
     return await bcrypt.compare(password,passwordHash);
   }
   static async delete(subject){
-    
+    const collection = new Database('auth').collection('passwords');
+
+    await collection.delete(subject);
   }
 }
 

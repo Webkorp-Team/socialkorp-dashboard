@@ -12,6 +12,7 @@ module.exports = {
       '/': { page: '/' },
       '/login': { page: '/login' },
       '/dashboard': { page: '/dashboard' },
+      '/users': { page: '/users' },
     }
   },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {

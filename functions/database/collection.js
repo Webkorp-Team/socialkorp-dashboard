@@ -47,11 +47,33 @@ export default class Collection{
   async getAll() {
     var snapshot = await firestore.collection(
       makeKey(this.databaseName, this.collectionName)
-    ).get()
+    ).get();
     var allData = [];
     snapshot.forEach(doc => {
       allData.push(doc.data());
     });
     return allData;
+  }
+
+  async getKeys() {
+    var snapshot = await firestore.collection(
+      makeKey(this.databaseName, this.collectionName)
+    ).get();
+    var keys = [];
+    snapshot.forEach(doc => {
+      keys.push(doc.id);
+    });
+    return keys;
+  }
+
+  async getMap() {
+    var snapshot = await firestore.collection(
+      makeKey(this.databaseName, this.collectionName)
+    ).get();
+    var map = {};
+    snapshot.forEach(doc => {
+      map[doc.id] = doc.data();
+    });
+    return map;
   }
 }

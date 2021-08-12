@@ -16,13 +16,14 @@ const refreshTokenExpirationTimeInDays = 7;
 const accessTokenExpirationTimeInMinutes = 15;
 
 class RefreshToken{
-  static #hash(token){
+  static async #hash(token){
     return crypto.createHash('sha256').update(token,'base64').digest('hex');
   }
   static async generate(subject){ // returns accessToken
-    const refreshToken = (await randomBytes(32)).toString('base64');
-    const refreshTokenHash = RefreshToken.#hash(refreshToken);
     const collection = new Database('auth').collection('refreshTokens');
+
+    const refreshToken = (await randomBytes(32)).toString('base64');
+    const refreshTokenHash = await this.#hash(refreshToken);
 
     await collection.set(refreshTokenHash,{
       sub: subject,
@@ -34,9 +35,9 @@ class RefreshToken{
   static async validate(expectedSubject,refreshToken){ // returns boolean(true)
     if(!expectedSubject || !refreshToken)
       throw new Error('Invalid refresh token');
-
-    const refreshTokenHash = RefreshToken.#hash(refreshToken);
     const collection = new Database('auth').collection('refreshTokens');
+
+    const refreshTokenHash = await RefreshToken.#hash(refreshToken);
 
     const data = await collection.get(refreshTokenHash);
 
@@ -52,15 +53,16 @@ class RefreshToken{
       throw new Error('Invalid refresh token');
 
     if(Date.now() > expirationTime){
-      this.revoke(refreshToken);
+      await this.revoke(refreshToken);
       throw new Error('Invalid refresh token');
     }
 
     return true;
   }
   static async revoke(refreshToken){
-    const refreshTokenHash = RefreshToken.#hash(refreshToken);
     const collection = new Database('auth').collection('refreshTokens');
+
+    const refreshTokenHash = await RefreshToken.#hash(refreshToken);
 
     await collection.delete(refreshTokenHash);
   }
@@ -88,6 +90,9 @@ export default class Token{
     await RefreshToken.revoke(refreshToken);
 
     return await this.generate(subject,payload);
+  }
+  static async revoke(refreshToken){
+    await RefreshToken.revoke(refreshToken);
   }
   static async verify(accessToken){ // returns payload
     const { payload } = await jwtVerify(

@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 import * as S from './styles';
+import Api from 'api/api';
+import { useRouter } from 'next/router';
 
 export default function TopBar({
   ...props
@@ -7,10 +9,11 @@ export default function TopBar({
 
   const [collapse, setCollapse] = useState(true);
 
+  const router = useRouter();
+
   const logout = useCallback(()=>{
-    window.localStorage.clear();
-    window.location = '/';
-  },[])
+    Api.logout();
+  },[router]);
 
   return <S.Root>
     <S.AppTitle>
