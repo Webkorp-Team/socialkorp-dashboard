@@ -28,8 +28,16 @@ export default class Users{
       throw new Error('User does not exist');
 
     await users.set(email,userData);
+    
+    if(password)
+      await Auth.Password.save(email,password);
+  }
 
-    await Auth.Password.save(email,password);
+  static async get(email){ // returns userData
+    const userData = await users.get(email);
+    if(!userData)
+      throw new Error('User does not exist');
+    return userData;
   }
 
   static async listAll(){
@@ -41,6 +49,7 @@ export default class Users{
       list.push({
         email,
         userData: map[email],
+        level: 'Admin',
       });
 
     return list;
@@ -61,7 +70,9 @@ export default class Users{
       throw new Error('Incorrect email and/or password');
     }
 
-    const {accessToken,refreshToken} = await Auth.Token.generate(email);
+    const {accessToken,refreshToken} = await Auth.Token.generate(email,{
+      elv: true
+    });
 
     return {
       accessToken,
@@ -69,15 +80,19 @@ export default class Users{
       userData
     };
   }
-  static async logout(refreshToken){
-    await Auth.Token.revoke(refreshToken);
+  static async logout(email){
+    await Auth.Token.revoke(email);
   }
   static async refreshLogin(email,currentRefreshToken){
-    if(!await users.get(email))
+    const userData = await users.get(email);
+
+    if(!userData)
       throw new Error('Invalid refresh token');
 
-    const {accessToken,refreshToken} = await Auth.Token.refresh(email,currentRefreshToken);
+    const {accessToken,refreshToken} = await Auth.Token.refresh(email,currentRefreshToken,{
+      elv: false
+    });
 
-    return {accessToken,refreshToken};
+    return {accessToken,refreshToken,userData};
   }
 }

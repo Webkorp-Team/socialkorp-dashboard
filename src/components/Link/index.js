@@ -1,14 +1,9 @@
-import { useRouter } from 'next/router'
-import { useCallback } from 'react';
+import NextLink from 'next/link';
 
-
-export default function Link({href,...props}){
-  const router = useRouter();
-
-  const handleClick = useCallback((ev)=>{
-    ev.preventDefault();
-    router.push(href);
-  },[router,href]);
-
-  return <a onClick={handleClick} href={href} {...props}/>
+export default function Link({href,displayHref,...p}){
+  return href ? (
+    <NextLink href={href} as={displayHref}>
+      <a {...p}/>
+    </NextLink>
+  ) : <a {...p}/>;
 }

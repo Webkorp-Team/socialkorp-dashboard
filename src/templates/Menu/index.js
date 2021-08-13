@@ -6,7 +6,7 @@ export default function Menu({
 }){
   return <S.Root {...props}>
     <S.AlignTop>
-      <S.SectionLink data-active={true}>
+      <S.SectionLink href="/dashboard">
         <Icon>home</Icon>
         <span>Dashboard</span>
       </S.SectionLink>
@@ -16,11 +16,11 @@ export default function Menu({
         <span>Website</span>
       </S.SectionTitle>
       <S.Section>
-        <S.Link>Home Page</S.Link>
-        <S.Link>About Us</S.Link>
-        <S.Link>Blog</S.Link>
-        <S.Link>Events</S.Link>
-        <S.Link>Contact Us</S.Link>
+        <S.PageLink>Home Page</S.PageLink>
+        <S.PageLink>About Us</S.PageLink>
+        <S.PageLink>Blog</S.PageLink>
+        <S.PageLink>Events</S.PageLink>
+        <S.PageLink>Contact Us</S.PageLink>
       </S.Section>
       <S.Separator/>
       <S.SectionTitle>
@@ -28,16 +28,16 @@ export default function Menu({
         <span>Database</span>
       </S.SectionTitle>
       <S.Section>
-        <S.Link>Newsletter</S.Link>
-        <S.Link>Contact Forms</S.Link>
+        <S.PageLink>Newsletter</S.PageLink>
+        <S.PageLink>Contact Forms</S.PageLink>
       </S.Section>
       <S.Separator/>
-      <S.SectionTitle>
+      <S.SectionTitle baseUrl="/admin">
         <Icon>settings</Icon>
         <span>Admin settings</span>
       </S.SectionTitle>
       <S.Section>
-        <S.Link href="/users">Users</S.Link>
+        <S.PageLink href="/admin/users">Users</S.PageLink>
       </S.Section>
       <S.Separator/>
     </S.AlignTop>

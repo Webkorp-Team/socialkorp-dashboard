@@ -47,7 +47,7 @@ function managedHandler(method,handler){
 function makePublicEndpoint(methods,handler){
   return functions.https.onRequest(managedHandler(methods,handler));
 }
-function makeEndpoint(methods,handler){
+function makeEndpoint(methods,handler,options={}){
   return functions.https.onRequest((req,res)=>{
     const authorization = req.get('authorization');
     if(!authorization)
@@ -56,9 +56,11 @@ function makeEndpoint(methods,handler){
     if(type !== 'Bearer')
       return res.status(401).send('Invalid authorization type');
     return Auth.Token.verify(token).then(payload => {
-      const {sub: subject} = payload;
+      const {sub: subject, elv: elevated} = payload;
       if(!subject)
         return res.status(401).send('Missing subject');
+      if(options.requiresElevation && !elevated)
+        return res.status(403).send('Login again');
       req.subject = subject;
       return managedHandler(methods,handler)(req,res);
     }).catch(e => {
@@ -78,12 +80,24 @@ export const ping = makeEndpoint('GET',async (req,res)=>{
 const createUser = async (req,res)=>{
   const {email,password,userData} = req.body;
 
+  if(!email)
+    res.status(422).send('Missing parameter "email"');
+  if(!password)
+    res.status(422).send('Missing parameter "password"');
+  if(!userData)
+    res.status(422).send('Missing parameter "userData"');
+
   await Users.create(email,password,userData);
 
   res.sendStatus(201);
 };
 const updateUser = async (req,res)=>{
   const {email,password,userData} = req.body;
+  
+  if(!email)
+    res.status(422).send('Missing parameter "email"');
+  if(!userData)
+    res.status(422).send('Missing parameter "userData"');
 
   await Users.update(email,password,userData);
 
@@ -96,7 +110,7 @@ const deleteUser = async (req,res)=>{
 
   res.sendStatus(204);
 };
-export const createUpdateDeleteUser = makeEndpoint(['POST','PUT','DELETE'],async (req,res)=>{
+export const createUpdateDeleteUser = makeEndpoint(['GET','POST','PUT','DELETE'],async (req,res)=>{
   switch(req.method){
     case 'POST':
       return createUser(req,res);
@@ -105,7 +119,7 @@ export const createUpdateDeleteUser = makeEndpoint(['POST','PUT','DELETE'],async
     case 'DELETE':
       return deleteUser(req,res);
   }
-});
+},{requiresElevation:true});
 export const listUsers = makeEndpoint('GET',async (req,res)=>{
 
   const list = await Users.listAll();
@@ -133,13 +147,8 @@ export const loginUser = makePublicEndpoint('POST',async (req,res)=>{
   }
 });
 export const logoutUser = makeEndpoint('POST',async (req,res)=>{
-  
-  const {refreshToken} = req.cookies;
-
-  if(refreshToken)
-    Users.logout(refreshToken);
-
-  res.sendStatus(200);
+  await Users.logout(req.subject);
+  res.sendStatus(204);
 });
 export const refreshUserLogin = makePublicEndpoint('POST',async (req,res)=>{
 
@@ -152,16 +161,24 @@ export const refreshUserLogin = makePublicEndpoint('POST',async (req,res)=>{
 
   try{
 
-    const {accessToken,refreshToken} = await Users.refreshLogin(email,currentRefreshToken);
+    const {accessToken,refreshToken,userData} = await Users.refreshLogin(email,currentRefreshToken);
 
     res.cookie('refreshToken',refreshToken,refreshTokenCookieOptions);
 
-    res.send({accessToken});
+    res.send({
+      accessToken,
+      userData
+    });
   }catch(e){
     res.status(401).send(e.message);
   }
 });
-
+export const getCurrentUser = makeEndpoint('GET',async (req,res)=>{
+  res.send({
+    email: req.subject,
+    userData: await Users.get(req.subject)
+  });
+});
   
 
 

@@ -14,6 +14,11 @@ export const Root = styled.main`
   @media mobile{
     display: block;
   }
+
+  &[data-transparentbg=true]{
+    background-color: #0008;
+    backdrop-filter: blur(5px);
+  }
 `;
 export const Card = styled.form`
   width: 472px;
@@ -61,6 +66,14 @@ export const HelpText = styled.div`
   line-height: 16px;
   text-align: center;
   color: ${p => p.theme.colors.gray2};
+`;
+export const HelpTextLink = styled.span`
+  font: inherit;
+  cursor: pointer;
+  color: inherit;
+  &:hover{
+    color: ${p => p.theme.colors.text};
+  }
 `;
 
 

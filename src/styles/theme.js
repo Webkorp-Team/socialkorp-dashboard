@@ -3,6 +3,7 @@ export default {
   colors: {
     primary: '#FC494E', // red
     textOverPrimary: '#fff', // white
+    lightTextOverPrimary: '#fff8', // translucid white 50%
     
     text: '#fff', // white
     lightText: '#fff8', // translucid white 50%

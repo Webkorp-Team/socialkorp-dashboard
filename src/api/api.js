@@ -28,13 +28,9 @@ async function performRequest(method,url,payload=undefined,token=undefined){
     return response;
 
   const contentType = response.headers.get("content-type");
-  if(contentType && contentType.indexOf("application/json") !== -1)
-    return response;
-  else return new Response('{}',{
-    status: response.status,
-    statusText: response.statusText,
-    headers: response.headers
-  });
+  response.isJson = (contentType && contentType.indexOf("application/json") !== -1);
+
+  return response;
 }
 
 const apiRoot = '/api/v1';
@@ -44,24 +40,31 @@ export class UnauthorizedError extends Error{
   status = 401;
   statusText = 'Unauthorized';
 }
+export class ForbiddenError extends Error{
+  forbidden = true;
+  status = 403;
+  statusText = 'Forbidden';
+}
 
 export default class Api{
 
   static #accessToken;
   static #email;
-  static #sessionActive;
+  static #sessionActive = false;
+  static #elevated = false;
   static #onLogout = ()=>{};
 
   static setOnLogoutListener(listener){
     this.#onLogout = listener;
   }
-
   static isSessionActive(){
     return this.#sessionActive;
   }
-
   static currentUser(){
     return (typeof window !== 'undefined') ? window.localStorage.getItem('currentUser') : null;
+  }
+  static elevated(){
+    return this.#elevated;
   }
 
   static async login(email,password){
@@ -71,7 +74,7 @@ export default class Api{
     });
 
     if(response.status === 401)
-      throw new Error('Invalid email and/or password');
+      throw new Error('Incorrect email and/or password');
     else if(!response.ok)
       throw new Error(response.statusText);
 
@@ -80,6 +83,7 @@ export default class Api{
     this.#email = email;
     this.#accessToken = body.accessToken;
     this.#sessionActive = true;
+    this.#elevated = true;
 
     window.localStorage.setItem('currentUser',this.#email);
 
@@ -92,7 +96,6 @@ export default class Api{
     window.localStorage.removeItem('currentUser');
     this.#onLogout();
   }
-
   
   static #refreshTokenInProgress = null;
   static async refreshToken(){
@@ -120,6 +123,7 @@ export default class Api{
       this.#sessionActive = false;
       this.#email = null;
       this.#accessToken = null;
+      this.#elevated = false;
       window.localStorage.removeItem('currentUser');
 
       throw new UnauthorizedError('Session expired');
@@ -130,12 +134,16 @@ export default class Api{
 
     this.#accessToken = body.accessToken;
     this.#sessionActive = true;
+    this.#elevated = false;
   }
   static async request(method,endpoint,payload,abortIfUnauthorized=false){
     
     const response = this.#accessToken ? (
       await performRequest(method,`${apiRoot}${endpoint}`,payload,this.#accessToken)
     ) : {};
+
+    if(response.status === 403)
+      throw new ForbiddenError(response.statusText);
 
     if(!this.#accessToken || response.status === 401){
 
@@ -150,8 +158,7 @@ export default class Api{
       }catch(error){
         if(error instanceof UnauthorizedError)
           this.#onLogout();
-        else
-          throw error;
+        throw error;
       }
 
       return await this.request(method,endpoint,payload,true);
@@ -159,8 +166,8 @@ export default class Api{
 
     if(!response.ok)
       throw new Error(response.statusText);
-    
-    return await response.json();
+
+    return response.isJson ? await response.json() : await response.text();
   }
 
   static async get(endpoint,payload){
@@ -168,6 +175,12 @@ export default class Api{
   }
   static async post(endpoint,payload){
     return await this.request('POST',endpoint,payload);
+  }
+  static async put(endpoint,payload){
+    return await this.request('PUT',endpoint,payload);
+  }
+  static async delete(endpoint,payload){
+    return await this.request('DELETE',endpoint,payload);
   }
 
 }

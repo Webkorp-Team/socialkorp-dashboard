@@ -12,7 +12,10 @@ module.exports = {
       '/': { page: '/' },
       '/login': { page: '/login' },
       '/dashboard': { page: '/dashboard' },
-      '/users': { page: '/users' },
+      '/admin/users': { page: '/admin/users' },
+      '/admin/users/edit': { page: '/admin/users/edit' },
+      '/admin/users/add': { page: '/admin/users/add' },
+      '/admin/users/delete': { page: '/admin/users/delete' },
     }
   },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {

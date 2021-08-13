@@ -1,16 +1,24 @@
 import Icon from 'components/Icon';
+import WorkspaceRoot from 'components/WorkspaceRoot';
+import WorkspaceTitle from 'components/WorkspaceTitle';
+import WorkspaceSectionTitle from 'components/WorkspaceSectionTitle';
 import * as S from './styles';
+import Card from 'components/Card';
+import { CardSectionTitle } from 'components/Card';
 
 export default function Dashboard({
   ...props
 }){
-  return <S.Root>
-    <S.Title>Dashboard</S.Title>
-    <S.SectionTitle>Quick info</S.SectionTitle>
+  return <WorkspaceRoot>
+    <WorkspaceTitle>Dashboard</WorkspaceTitle>
+    <WorkspaceSectionTitle>Quick info</WorkspaceSectionTitle>
     <S.GridLayout>
-      <S.Card>
-        <S.CardHeader>Events</S.CardHeader>
-        <S.CardBody>
+      <Card footer={
+        <a>
+          Events
+          <Icon>east</Icon>
+        </a>
+      } header={<>Events</>}>
           <S.CardTableDouble>
             <div>
               <div>Active</div><div>0</div>
@@ -20,19 +28,13 @@ export default function Dashboard({
               <div>Expire soon</div><div>0</div>
             </div>
           </S.CardTableDouble>
-        </S.CardBody>
-        <S.CardFooter>
-          <small>
-          <a>
-            Events
-            <Icon>east</Icon>
-          </a>
-          </small>
-        </S.CardFooter>
-      </S.Card>
-      <S.Card>
-        <S.CardHeader>Newsletter</S.CardHeader>
-        <S.CardBody>
+      </Card>
+      <Card footer={
+        <a>
+          Newsletter
+          <Icon>east</Icon>
+        </a>
+      } header={<>Newsletter</>}>
           <S.CardTableDouble>
             <div>
               <div>Subscribers</div><div>0</div>
@@ -41,19 +43,13 @@ export default function Dashboard({
             <div>
             </div>
           </S.CardTableDouble>
-        </S.CardBody>
-        <S.CardFooter>
-          <small>
-          <a>
-            Events
-            <Icon>east</Icon>
-          </a>
-          </small>
-        </S.CardFooter>
-      </S.Card>
-      <S.Card>
-        <S.CardHeader>Contact Us form</S.CardHeader>
-        <S.CardBody>
+      </Card>
+      <Card footer={
+        <a>
+          Contact us
+          <Icon>east</Icon>
+        </a>
+      } header={<>Contact requests</>}>
           <S.CardTableDouble>
             <div>
               <div>Active</div><div>0</div>
@@ -62,30 +58,26 @@ export default function Dashboard({
             <div>
             </div>
           </S.CardTableDouble>
-        </S.CardBody>
-        <S.CardFooter>
-          <small>
-          <a>
-            Events
-            <Icon>east</Icon>
-          </a>
-          </small>
-        </S.CardFooter>
-      </S.Card>
+      </Card>
     </S.GridLayout>
-    <S.SectionTitle>Analytics</S.SectionTitle>
+    <WorkspaceSectionTitle>Analytics</WorkspaceSectionTitle>
     <S.GridLayout>
-      <S.Card data-primary={true}>
-        <S.CardHeader>Real time</S.CardHeader>
-        <S.CardBody>
-          <S.CardSectionTitle>Active users now</S.CardSectionTitle>
+    <Card
+      variant="primary"
+      footer={
+        <a>
+          Google Analytics
+          <Icon>launch</Icon>
+        </a>
+      } header={<>Events</>}>
+          <CardSectionTitle>Active users now</CardSectionTitle>
           <S.CardCount>
             0
           </S.CardCount>
-          <S.CardSectionTitle>
+          <CardSectionTitle>
             <div>Main active pages</div>
             <div>Active users</div>
-          </S.CardSectionTitle>
+          </CardSectionTitle>
           <S.CardTable>
             <div>Home Page</div><div>0</div>
             <div>About Us</div><div>0</div>
@@ -104,43 +96,30 @@ export default function Dashboard({
             <div></div><div></div>
             <div></div><div></div>
           </S.CardTable>
-        </S.CardBody>
-        <S.CardFooter>
+      </Card>
+      <Card
+        footer={
           <a>
             Google Analytics
             <Icon>launch</Icon>
           </a>
-        </S.CardFooter>
-      </S.Card>
-      <S.Card>
-        <S.CardHeader>Users location <small>(Last 7 days)</small></S.CardHeader>
-        <S.CardBody>
-          <S.CardSectionTitle>
+        } header={<>Users location <small>(Last 7 days)</small></>}
+      >
+          <CardSectionTitle>
             <div>Country</div>
             <div>%</div>
-          </S.CardSectionTitle>
-        </S.CardBody>
-        <S.CardFooter>
+          </CardSectionTitle>
+      </Card>
+      <Card
+        footer={
           <a>
             Google Analytics
             <Icon>launch</Icon>
           </a>
-        </S.CardFooter>
-      </S.Card>
-      <S.Card>
-        <S.CardHeader>Users location</S.CardHeader>
-        <S.CardBody>
-          <S.CardSectionTitle>
-            Country
-          </S.CardSectionTitle>
-        </S.CardBody>
-        <S.CardFooter>
-          <a>
-            Google Analytics
-            <Icon>launch</Icon>
-          </a>
-        </S.CardFooter>
-      </S.Card>
+        } header={<>Users location</>}
+      >
+          <CardSectionTitle>Country</CardSectionTitle>
+      </Card>
     </S.GridLayout>
-  </S.Root>
+  </WorkspaceRoot>
 }

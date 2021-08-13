@@ -34,6 +34,7 @@ export const UserAvatar = styled.div`
   line-height: 40px;
   font-weight: 400;
   text-align: center;
+  text-transform: uppercase;
 
   cursor: pointer;
 `;
@@ -74,7 +75,11 @@ export const MenuItem = styled.div`
 
   cursor: pointer;
   &:hover{
-    opacity: 0.75;
+    color: ${p => p.theme.colors.lightTextOverPrimary};
+  }
+  &[data-disabled=true]{
+    color: ${p => p.theme.colors.lightTextOverPrimary};
+    cursor: default;
   }
 `;
 export const ExpandButton = styled.div.attrs({

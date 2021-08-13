@@ -5,7 +5,9 @@ import DashboardTemplate from 'templates/Dashboard';
 
 export default function Dashboard(){
 
-  return <AppFrame>
-    <DashboardTemplate/>
-  </AppFrame>
+  useEffect(()=>{
+    Api.get('/ping').then(()=>{}).catch(()=>{});
+  },[]);
+
+  return <DashboardTemplate/>;
 }

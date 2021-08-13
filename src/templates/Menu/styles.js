@@ -1,6 +1,33 @@
 import { useState } from "react";
 import styled from "styled-components";
-import UnstyledLink from "components/Link";
+import NextLink from "next/link";
+import Link from "components/Link";
+import { useRouter } from "next/router";
+
+const UnstyledLink = ({href,...props})=>{
+  
+  const router = useRouter();
+  
+  return <Link href={href} data-active={
+    router.pathname === href
+  } {...props}/>
+};
+const _UnstyledLink = ({href,...props})=>{
+  
+  const router = useRouter();
+  
+  const link = <a data-active={
+    router.pathname === href
+  } data-child-active={
+    href.startsWith(router.pathname+'/')
+  } {...props}/>;
+
+  return href ? (
+    <NextLink href={href}>
+      {link}
+    </NextLink>
+  ) : link
+};
 
 export const Root = styled.div`
   display: grid;
@@ -24,8 +51,13 @@ export const AlignBottom = styled.div`
 `;
 
 
-const _SectionTitle = (p)=>{
-  const [collapse, setCollapse] = useState(false);
+const _SectionTitle = ({baseUrl,...p})=>{
+  const router = useRouter();
+  const childActive = baseUrl && (
+    router.pathname === baseUrl
+    || router.pathname.startsWith(baseUrl+"/")
+  ) ? true : false;
+  const [collapse, setCollapse] = useState(!childActive);
   return <div {...p} data-collapse={collapse} onClick={()=>setCollapse(x=>!x)}/>
 }
 export const SectionTitle = styled(_SectionTitle)`
@@ -46,12 +78,6 @@ export const SectionTitle = styled(_SectionTitle)`
 
   
   cursor: pointer;
-  
-  &:hover,&[data-active=true]{
-    & > *{
-      color: ${p => p.theme.colors.primary};
-    }
-  }
 
   position: relative;
   &:after{
@@ -64,17 +90,24 @@ export const SectionTitle = styled(_SectionTitle)`
     height: 0; 
     border-left: 7px solid transparent;
     border-right: 7px solid transparent;
-    border-top: 7px solid ${p => p.theme.colors.primary};
+    border-top: 7px solid ${p => p.theme.colors.text};
 
     transition: transform 0.5s;
   }
-  &[data-collapse=true]:after{
+  &:hover,&[data-active=true]{
+    & > *{
+      color: ${p => p.theme.colors.primary};
+    }
+    :after{
+      border-top-color: ${p => p.theme.colors.primary};
+    }
+  }
+  &[data-collapse=false]:after{
     transform: scaleY(-1);
   }
 `;
 const _SectionLink = ({...props})=>{
-
-  return <SectionTitle as="a" {...props}/>;
+  return <SectionTitle as={UnstyledLink} {...props}/>;
 };
 export const SectionLink = styled(_SectionLink)`
   display: block;
@@ -93,7 +126,7 @@ export const Section = styled.div`
     transition: opacity .25s, font-size 1s .25s;
   }
 `;
-export const Link = styled(UnstyledLink)`
+export const PageLink = styled(UnstyledLink)`
   display: block;
   font-size: ${16/16}em;
   color: ${p => p.theme.colors.text};
@@ -105,6 +138,10 @@ export const Link = styled(UnstyledLink)`
   }
   & + &{
     margin-top: ${18/16}em;
+  }
+
+  &[data-active=true]{
+    color: ${p => p.theme.colors.primary};
   }
 `;
 

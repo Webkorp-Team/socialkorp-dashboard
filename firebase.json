@@ -11,8 +11,17 @@
         {"source": "/dashboard",
         "destination": "/dashboard.html"},
 
-        {"source": "/users",
-        "destination": "/users.html"},
+        {"source": "/admin/users",
+        "destination": "/admin/users.html"},
+
+        {"source": "/admin/users/edit",
+        "destination": "/admin/users/edit.html"},
+
+        {"source": "/admin/users/add",
+        "destination": "/admin/users/add.html"},
+
+        {"source": "/admin/users/delete",
+        "destination": "/admin/users/delete.html"},
 
         {"source": "/api/v1/user/login",
         "function": "loginUser"},
@@ -28,6 +37,9 @@
 
         {"source": "/api/v1/user",
         "function": "createUpdateDeleteUser"},
+
+        {"source": "/api/v1/user/current",
+        "function": "getCurrentUser"},
 
         {"source": "/api/v1/ping",
         "function": "ping"}

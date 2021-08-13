@@ -5,6 +5,7 @@ import { GlobalStyles, plugins } from 'responsive-toolkit';
 import { useEffect, useState } from 'react';
 import Api from 'api/api';
 import { useRouter } from 'next/router';
+import AppFrame from 'templates/AppFrame';
 
 function App({ Component, pageProps }) {
 
@@ -12,10 +13,8 @@ function App({ Component, pageProps }) {
 
   const router = useRouter();
 
-  const pathname = (typeof window !== 'undefined') && window.location.pathname;
-
   useEffect(()=>{
-    if(Api.isSessionActive() || pathname === '/login'){
+    if(Api.isSessionActive() || router.pathname === '/login'){
 
       setAuthInitialized(true);
       return;
@@ -24,7 +23,7 @@ function App({ Component, pageProps }) {
 
       Api.refreshToken().then(()=>{
         setAuthInitialized(true);
-        if(pathname === '/')
+        if(router.pathname === '/')
           router.push('/dashboard');
       }).catch((e)=>{
         if(e.unauthorized)
@@ -33,7 +32,7 @@ function App({ Component, pageProps }) {
 
     }else
       router.push('/login');
-  },[setAuthInitialized,pathname]);
+  },[setAuthInitialized,router.pathname]);
 
   useEffect(()=>{
     Api.setOnLogoutListener(()=>{
@@ -51,7 +50,15 @@ function App({ Component, pageProps }) {
       <GlobalStyles/>
       <ThemeProvider theme={ theme }>
         <StyleSheetManager stylisPlugins={plugins}>
-          {authInitialized ? <Component {...pageProps} /> : <></>}
+          {authInitialized ? (
+            router.pathname == '/login' ? (
+              <Component {...pageProps} />
+            ) : (
+              <AppFrame>
+                <Component {...pageProps} />
+              </AppFrame>
+            )
+          ) : <></>}
         </StyleSheetManager>
       </ThemeProvider>
     </>

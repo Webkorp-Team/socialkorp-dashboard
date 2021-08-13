@@ -1,30 +1,29 @@
 import * as S from './styles';
 import TextField from 'components/TextField';
 import Button from 'components/Button';
+import { useCallback } from 'react';
+import Link from 'next/link';
 
-export default function Main({
+export default function PasswordConfirmation({
   errorMessage=null,
   loading=false,
   clearError=()=>{},
   onSubmit=()=>{},
+  onCancel=()=>{},
+  email="",
   ...props
 }){
 
-  return <S.Root {...props}>
+  const handleCancel = useCallback((ev)=>{
+    ev.preventDefault();
+    onCancel();
+  },[onCancel]);
+
+  return <S.Root data-transparentbg={true} {...props}>
     <S.Card onSubmit={onSubmit}>
-      <S.Logo/>
-      <S.Spacer count={8}/>
-      <S.Title>Sign in</S.Title>
+      <S.Title>Please enter your password again to confirm your identity</S.Title>
       <S.Spacer count={6}/>
-      <TextField
-        type="email"
-        name="email"
-        placeholder="E-mail"
-        required
-        onChange={()=>clearError()}
-        invalid={Boolean(errorMessage)}
-        disabled={loading}
-      />
+      <S.Title>{email}</S.Title>
       <S.Spacer count={2}/>
       <TextField
         type="password"
@@ -37,9 +36,13 @@ export default function Main({
       />
       <S.InputError $visible={Boolean(errorMessage)}>{errorMessage}</S.InputError>
       <S.Spacer count={2}/>
-      <S.HelpText>Not your computer? Use Guest mode to sign in privately.</S.HelpText>
+      <S.HelpText>
+        Not you? <Link href="/login"><S.HelpTextLink>Login as another user.</S.HelpTextLink></Link>
+      </S.HelpText>
       <S.Spacer count={2}/>
       <Button disabled={loading}>Login</Button>
+      <S.Spacer count={1}/>
+      <Button onClick={handleCancel} variant="secondary" disabled={loading}>Cancel</Button>
       <S.Spacer count={2}/>
       <S.HelpText>Powered by Webkorp</S.HelpText>
     </S.Card>

@@ -1,5 +1,5 @@
 const viewPortSizes = {
-  default: [2400,1350],
+  default: [2160,1350],
   mobile: [375,812],
   tablet: [768,1024],
 };
