@@ -11,7 +11,7 @@ import { useUpdateCurrentUserData } from 'use-current-user';
 
 function App({ Component, pageProps }) {
 
-  const [authInitialized, setAuthInitialized] = useState(Boolean(Api.currentUser()));
+  const [authInitialized, setAuthInitialized] = useState(false);
 
   const router = useRouter();
 
@@ -27,10 +27,11 @@ function App({ Component, pageProps }) {
       router.push('/login');
       return;
     }
+
+    setAuthInitialized(true);
     
     Api.refreshToken().then(user => {
       setUser(user);
-      setAuthInitialized(true);
       if(router.pathname === '/')
         router.push('/dashboard');
     }).catch((e)=>{
@@ -54,6 +55,7 @@ function App({ Component, pageProps }) {
     <>
       <Head>
         <title>Future HealthSpaces</title>
+        <link rel="icon" href="data:,"/>
         {/* <link rel="shortcut icon" href="/img/favicon.ico" /> */}
         {/* <meta name="description" content="A simple project starter with Nextjs" /> */}
       </Head>

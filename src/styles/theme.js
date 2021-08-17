@@ -27,6 +27,3 @@ export default {
     logo: require('assets/logo-dark.svg').default,
   },
 }
-
-
-console.log(require('assets/logo-dark.svg').default);

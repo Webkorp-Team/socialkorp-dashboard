@@ -12,6 +12,5 @@ export default function AppFrame({children,...props}){
         {children}
       </S.Content>
     </S.MenuWrapperGrid>
-    
   </S.Root>
 }

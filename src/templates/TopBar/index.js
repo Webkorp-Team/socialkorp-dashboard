@@ -59,7 +59,7 @@ export default function TopBar({
         <S.Menu>
           <S.MenuItem onClick={userPage('profile')}>Profile</S.MenuItem>
           <S.MenuItem onClick={userPage('password')}>Password</S.MenuItem>
-          <S.MenuItem data-disabled={logout} onClick={logout}>Logout</S.MenuItem>
+          <S.MenuItem data-disabled={logoutDisabled} onClick={logout}>Logout</S.MenuItem>
         </S.Menu>
       </S.ExpansiveSection>
       <S.ExpandButton data-collapse={collapse} onClick={()=>setCollapse(x=>!x)}/>

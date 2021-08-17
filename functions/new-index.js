@@ -237,6 +237,4 @@ app.all('*',(req,res)=>{
 
 /* ------------ Firebase -------------- */
 
-export const api = functions.runWith({
-  timeoutSeconds: 5
-}).https.onRequest(app);
+export const api = functions.https.onRequest(app);

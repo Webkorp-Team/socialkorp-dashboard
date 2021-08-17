@@ -32,7 +32,7 @@ export default class MyDocument extends Document {
     return (
       <Html lang="en">
         <Head />
-        <body className="mdc-typography">
+        <body>
           <Main />
           <NextScript />
         </body>

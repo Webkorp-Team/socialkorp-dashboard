@@ -79,6 +79,7 @@ export const MenuItem = styled.div`
   }
   &[data-disabled=true]{
     color: ${p => p.theme.colors.lightTextOverPrimary};
+    opacity: 0.5;
     cursor: default;
   }
 `;
