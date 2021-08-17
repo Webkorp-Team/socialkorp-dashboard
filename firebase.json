@@ -4,10 +4,10 @@
       "target": "admin",
       "public": "build",
       "rewrites": [
-
-
-
         
+        {"source": "/api/v1/**",
+        "function": "api"},
+
         {"source": "/login",
         "destination": "/login.html"},
 
@@ -30,31 +30,7 @@
         "destination": "/profile.html"},
 
         {"source": "/password",
-        "destination": "/password.html"},
-
-
-
-
-        {"source": "/api/v1/user/login",
-        "function": "loginUser"},
-
-        {"source": "/api/v1/user/logout",
-        "function": "logoutUser"},
-
-        {"source": "/api/v1/user/refreshLogin",
-        "function": "refreshUserLogin"},
-
-        {"source": "/api/v1/users",
-        "function": "listUsers"},
-
-        {"source": "/api/v1/user",
-        "function": "createUpdateDeleteUser"},
-
-        {"source": "/api/v1/user/current",
-        "function": "getCurrentUser"},
-
-        {"source": "/api/v1/ping",
-        "function": "ping"}
+        "destination": "/password.html"}
 
       ]
     }

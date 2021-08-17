@@ -67,6 +67,9 @@ class RefreshToken{
 export default class Token{
 
   static async #generateAccessToken(subject,payload){
+    if(!subject)
+      throw new Error('Missing subject');
+
     return await new SignJWT(payload)
       .setProtectedHeader({ alg: 'RS256' })
       .setIssuedAt()
@@ -100,6 +103,9 @@ export default class Token{
         audience,
       }
     );
+
+    if(!payload.sub)
+      throw new Error('Missing subject');
 
     return payload;
   }

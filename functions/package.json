@@ -13,10 +13,13 @@
     "node": "14"
   },
   "type": "module",
-  "main": "index.js",
+  "main": "new-index.js",
   "dependencies": {
     "bcrypt": "^5.0.1",
-    "cookie": "^0.4.1",
+    "cookie-parser": "^1.4.5",
+    "express": "^5.0.0-alpha.8",
+    "express-async-handler": "^1.1.4",
+    "express-bearer-token": "^2.4.0",
     "firebase-admin": "^9.8.0",
     "firebase-functions": "^3.14.1",
     "jose": "^3.14.3"
