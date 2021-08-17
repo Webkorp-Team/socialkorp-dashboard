@@ -5,6 +5,9 @@
       "public": "build",
       "rewrites": [
 
+
+
+        
         {"source": "/login",
         "destination": "/login.html"},
 
@@ -22,6 +25,15 @@
 
         {"source": "/admin/users/delete",
         "destination": "/admin/users/delete.html"},
+
+        {"source": "/profile",
+        "destination": "/profile.html"},
+
+        {"source": "/password",
+        "destination": "/password.html"},
+
+
+
 
         {"source": "/api/v1/user/login",
         "function": "loginUser"},

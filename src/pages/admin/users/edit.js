@@ -1,76 +1,99 @@
-import AppFrame from 'templates/AppFrame';
-import AddEditUser from 'templates/Users/AddEditUser';
 import { useEffect, useMemo, useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
+import AddEditUser from 'templates/Users/AddEditUser';
 import PasswordConfirmation from 'components/PasswordConfirmation';
 import Api from 'api/api';
-import { shallowEqualObjects } from "shallow-equal";
+import useCurrentUser,{ useUpdateCurrentUserData } from 'use-current-user';
 
-
-export default function EditUser({
-  forwardedUser=null
-}){
+export default function EditUser({selfMode=null}){
 
   const router = useRouter();
-  
-  const user = useMemo(()=>{
-    if(forwardedUser)
-      return forwardedUser;
-    try{
-      return JSON.parse(router.query.user);
-    }catch(e){
-      return null
-    }
-  },[router]);
+
+  const currentUser = useCurrentUser();
+  const updateCurrentUserData = useUpdateCurrentUserData();
+
+  const [user, setUser] = useState({});
 
   useEffect(()=>{
-    if(!user)
-      router.replace('/admin/users');
-  },[user]);
+    if(!router.isReady)
+      return;
+    if(selfMode)
+      setUser(currentUser);
+    else if(router.query.email)
+      setUser({email:router.query.email});
+    else if(router.query.user)
+      try{
+        setUser(JSON.parse(router.query.user));
+      }catch(e){
+        setUser(null);
+      }
+    else
+      setUser(null);
+  },[router,selfMode,currentUser]);
 
+  useEffect(()=>{
+    if(!user){
+      router.replace('/admin/users');
+      return;
+    }
+    if(!user.email)
+      return;
+    if(user.userData)
+      return;
+    
+    Api.get('/users').then(list => {
+      setUser(list.filter(u => u.email === user.email)[0] || null);
+    }).catch(()=>{});
+
+  },[user]);
+  
   const [showPwConfirmation, setShowPwConfirmation] = useState(false);
   const [disabled, setDisabled] = useState(false);
 
   const [form, setForm] = useState(null);
 
+  useEffect(()=>{
+    if(form)
+      put();
+  },[form]);
+
   const put = useCallback(()=>{
+    
+    if(!Api.elevated()){
+      setDisabled(true);
+      setTimeout(()=>{
+        setShowPwConfirmation(true);
+      },500);
+      return;
+    }
+
     const email = user.email;
     const userData = {
       firstName: form.firstName.value,
       lastName: form.lastName.value,
     };
     const password = form.password.value;
+
     setDisabled(true);
+
     Api.put('/user',{
       email,
       userData,
       password
     }).then(()=>{
-      if(user.email === Api.currentUser() && !shallowEqualObjects(user.userData,userData))
-        window.location = '/admin/users';
-      else
-        router.push('/admin/users');
+      if(user.email === currentUser.email)
+        updateCurrentUserData(userData);
+      router.push('/admin/users');
     }).catch(()=>{
       setDisabled(false);
     }); 
   },[
     setDisabled,
     user,
+    currentUser,
     form
   ]);
 
-  useEffect(()=>{
-    if(!form)
-      return;
-    if(Api.elevated())
-      put();
-    else{
-      setDisabled(true);
-      setTimeout(()=>{
-        setShowPwConfirmation(true);
-      },500);
-    }
-  },[form,setShowPwConfirmation,setDisabled,put]);
 
   const handleSubmit = useCallback((e)=>{
     setForm(e.currentTarget);
@@ -93,11 +116,13 @@ export default function EditUser({
 
 
   return <>
+    
     {showPwConfirmation ? <PasswordConfirmation
       onCancel={handlePwCancel}
       onLogin={handlePwSubmit}
     /> : null}
-      <AddEditUser disabled={disabled} onCancel={handleCancel} onSubmit={handleSubmit} user={user}/>
+    
+    { !user ? null : <AddEditUser disabled={disabled} onCancel={handleCancel} onSubmit={handleSubmit} user={user} selfMode={selfMode}/> }
   </>;
 
 }

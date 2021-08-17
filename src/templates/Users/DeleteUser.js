@@ -5,6 +5,7 @@ import { useCallback, useState, useMemo } from 'react';
 import Card, { CardSectionTitle } from 'components/Card';
 import * as S from './styles';
 import TextField from 'components/TextField';
+import ProgressBar from 'components/ProgressBar';
 
 export default function DeleteUser({
   user,
@@ -43,60 +44,59 @@ export default function DeleteUser({
     <WorkspaceSectionTitle>
       Account
     </WorkspaceSectionTitle>
-    <S.Layout>
+    <S.Layout>{!user.userData ? <ProgressBar/> : (
+      <Card
+        header={<>Delete account</>}
+      >
+        <S.CardLayout as="form" onSubmit={handleSubmit}>
 
-    <Card
-      header={<>Delete account</>}
-    >
-      <S.CardLayout as="form" onSubmit={handleSubmit}>
+          <div>
+            <CardSectionTitle>
+              Name
+            </CardSectionTitle>
+            <S.Spacer count={4}/>
+            <TextField readOnly={true} name="firstName" placeholder="No given names set" defaultValue={user ? user.userData.firstName : ''}/>
+            <S.Spacer count={2}/>
+            <TextField readOnly={true} name="lastName" placeholder="No surname set" defaultValue={user ? user.userData.lastName : ''}/>
+          </div>
+          
+          <div>
+            <CardSectionTitle>
+              Email
+            </CardSectionTitle>
+            <S.Spacer count={4}/>
+            <TextField readOnly={true} name="email" defaultValue={user ? user.email : user} placeholder="E-mail"/>
+          </div>
 
-        <div>
-          <CardSectionTitle>
-            Name
-          </CardSectionTitle>
-          <S.Spacer count={4}/>
-          <TextField readOnly={true} name="firstName" placeholder="No given names set" defaultValue={user ? user.userData.firstName : ''}/>
-          <S.Spacer count={2}/>
-          <TextField readOnly={true} name="lastName" placeholder="No surname set" defaultValue={user ? user.userData.lastName : ''}/>
-        </div>
-        
-        <div>
-          <CardSectionTitle>
-            Email
-          </CardSectionTitle>
-          <S.Spacer count={4}/>
-          <TextField readOnly={true} name="email" defaultValue={user ? user.email : user} placeholder="E-mail"/>
-        </div>
-
-        <div>
-          <CardSectionTitle>
-            Confirmation
-          </CardSectionTitle>
-          <S.Spacer count={4}/>
-          <S.HelpText>
-            To permanently delete this account, type the word "delete" in the box below.
-            <br/><br/>
-            This action is irreversible!
-          </S.HelpText>
-          <S.Spacer count={4}/>
-          <TextField required={true} disabled={disabled} name="confirmation" placeholder='Type "delete"' autoComplete="off" onFocus={handleConfirmationChange}/>
-          <S.Spacer count={2}/>
-          <S.FieldError>{showConfirmationError ? <>Confirmation word does not match.<br/>Type the word "delete" exactly as it reads.</> : null}</S.FieldError>
-        </div>
-        
-        <div></div>
-        
-        <div>
-          {/* <S.Spacer count={6}/> */}
-          <S.ActionButton disabled={disabled} variant="primary">
-            Delete
-          </S.ActionButton>
-          <S.ActionButton disabled={disabled} onClick={handleCancel} variant="secondary">
-            Cancel
-          </S.ActionButton>
-        </div>
-      </S.CardLayout>
-    </Card>
-    </S.Layout>
+          <div>
+            <CardSectionTitle>
+              Confirmation
+            </CardSectionTitle>
+            <S.Spacer count={4}/>
+            <S.HelpText>
+              To permanently delete this account, type the word "delete" in the box below.
+              <br/><br/>
+              This action is irreversible!
+            </S.HelpText>
+            <S.Spacer count={4}/>
+            <TextField required={true} disabled={disabled} name="confirmation" placeholder='Type "delete"' autoComplete="off" onFocus={handleConfirmationChange}/>
+            <S.Spacer count={2}/>
+            <S.FieldError>{showConfirmationError ? <>Confirmation word does not match.<br/>Type the word "delete" exactly as it reads.</> : null}</S.FieldError>
+          </div>
+          
+          <div></div>
+          
+          <div>
+            {/* <S.Spacer count={6}/> */}
+            <S.ActionButton disabled={disabled} variant="primary">
+              Delete
+            </S.ActionButton>
+            <S.ActionButton disabled={disabled} onClick={handleCancel} variant="secondary">
+              Cancel
+            </S.ActionButton>
+          </div>
+        </S.CardLayout>
+      </Card>
+    )}</S.Layout>
   </WorkspaceRoot>
 }

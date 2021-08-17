@@ -106,6 +106,11 @@ const updateUser = async (req,res)=>{
 const deleteUser = async (req,res)=>{
   const {email} = req.body;
 
+  if(email === req.subject){
+    res.status(422).send("You can not delete yourself");
+    return;
+  }
+
   await Users.delete(email);
 
   res.sendStatus(204);

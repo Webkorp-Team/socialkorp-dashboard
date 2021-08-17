@@ -1,4 +1,4 @@
-import DeleteUser from 'templates/Users/DeleteUser';
+import DeleteUserTemplate from 'templates/Users/DeleteUser';
 import { useEffect, useMemo, useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import PasswordConfirmation from 'components/PasswordConfirmation';
@@ -9,17 +9,38 @@ export default function DeleteUser(){
 
   const router = useRouter();
   
-  const user = useMemo(()=>{
-    try{
-      return JSON.parse(router.query.user);
-    }catch(e){
-      return null
-    }
+  const [user, setUser] = useState({});
+
+  useEffect(()=>{
+    console.log(router.isReady,router.query);
+    if(!router.isReady)
+      return;
+    else if(router.query.email)
+      setUser({email:router.query.email});
+    else if(router.query.user)
+      try{
+        setUser(JSON.parse(router.query.user));
+      }catch(e){
+        setUser(null);
+      }
+    else
+      setUser(null);
   },[router]);
 
   useEffect(()=>{
-    if(!user)
+    if(!user || user.email === Api.currentUser()){
       router.replace('/admin/users');
+      return;
+    }
+    if(!user.email)
+      return;
+    if(user.userData)
+      return;
+    
+    Api.get('/users').then(list => {
+      setUser(list.filter(u => u.email === user.email)[0] || null);
+    }).catch(()=>{});
+
   },[user]);
 
   const [showPwConfirmation, setShowPwConfirmation] = useState(false);
@@ -71,7 +92,7 @@ export default function DeleteUser(){
       onCancel={handlePwCancel}
       onLogin={handlePwSubmit}
     /> : null}
-      <DeleteUser disabled={disabled} onCancel={handleCancel} onSubmit={handleSubmit} user={user}/>
+      {!user ? null : <DeleteUserTemplate disabled={disabled} onCancel={handleCancel} onSubmit={handleSubmit} user={user}/>}
   </>;
 
 }

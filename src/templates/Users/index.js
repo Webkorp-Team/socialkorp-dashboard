@@ -8,7 +8,7 @@ import Api from 'api/api';
 import ProgressBar from 'components/ProgressBar';
 
 export default function Users({
-  users=[],
+  users=null,
   ...props
 }){
 
@@ -31,7 +31,7 @@ export default function Users({
       <S.TableHead></S.TableHead>
 
       {
-        users.map((user,idx) => <Fragment key={idx}>
+        !users ? null : users.map((user,idx) => <Fragment key={idx}>
           <S.TableCell>
             {/* email={user.email}  */}
             <S.ActionLink
@@ -41,7 +41,7 @@ export default function Users({
                   user: JSON.stringify(user)
                 }
               }}
-              displayHref={`/admin/users/edit?user=${user.email}`}
+              displayHref={`/admin/users/edit?email=${user.email}`}
             >
               Edit
             </S.ActionLink>
@@ -58,6 +58,6 @@ export default function Users({
       }
 
     </S.Table>
-    {users.length === 0 ? <ProgressBar/> : null}
+    {!users ? <ProgressBar/> : null}
   </WorkspaceRoot>;
 }

@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import * as S from './styles';
 import Api from 'api/api';
 import { useRouter } from 'next/router';
+import useCurrentUser from 'use-current-user';
 
 export default function TopBar({
   ...props
@@ -20,39 +21,32 @@ export default function TopBar({
     });
   },[router,setLogoutDisabled]);
 
-  const [userData, setUserData] = useState(null);
-
   const userPage = useCallback((mode)=>()=>{
-    router.push({
-      pathname: `/${mode}`,
-      query:{
-        user: JSON.stringify({
-          email: Api.currentUser(),
-          userData
-        })
-      },
-    },`/${mode}`);
-  },[router,userData]);
+    router.push(`/${mode}`);
+  },[router]);
 
-  useEffect(()=>{
-    Api.get('/user/current').then(({userData}) => {
-      setUserData(userData);
-    }).catch(()=>{});
-  },[setUserData]);
+  const user = useCurrentUser();
 
   const name = useMemo(()=>{
-    if(!userData || !userData.firstName)
-      return Api.currentUser();
-    else return `${userData.firstName} ${userData.lastName}`;
-  },[userData]);
+    if(!user.userData || (
+      !user.userData.firstName
+      && !user.userData.lastName
+    ))
+      return user.email;
+    else return `${user.userData.firstName} ${user.userData.lastName}`;
+  },[user]);
 
   const initials = useMemo(()=>{
-    if(!userData)
+    if(!user.userData)
       return null;
-    else if(!userData.firstName)
-      return Api.currentUser().substr(0,1);
-    else return `${(userData.firstName||'').substr(0,1)}${(userData.lastName||'').substr(0,1)}`;
-  },[userData]);
+    else if(
+      !user.userData.firstName
+      && !user.userData.lastName
+    )
+      return user.email.substr(0,1);
+    else
+      return `${(user.userData.firstName||'').substr(0,1)}${(user.userData.lastName||'').substr(0,1)}`;
+  },[user]);
 
   return <S.Root>
     <S.AppTitle>

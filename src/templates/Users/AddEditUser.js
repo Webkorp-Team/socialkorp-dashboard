@@ -11,6 +11,7 @@ import ProgressBar from 'components/ProgressBar';
 
 export default function AddEditUser({
   user,
+  selfMode=null,
   onSubmit=()=>{},
   onCancel=()=>{},
   disabled=false,
@@ -39,10 +40,8 @@ export default function AddEditUser({
     onCancel(e);
   },[onCancel]);
 
-  const router = useRouter();
-
-  const profile = router.asPath === '/profile';
-  const password = router.asPath === '/password';
+  const profile = selfMode === 'profile';
+  const password = selfMode === 'password';
 
   return <WorkspaceRoot>
     <WorkspaceTitle>Users</WorkspaceTitle>
@@ -53,7 +52,7 @@ export default function AddEditUser({
       }
     </WorkspaceSectionTitle>
     <S.Layout data-slim={profile||password}>{
-      !user.email ? <ProgressBar/> : (
+      user && !user.userData ? <ProgressBar/> : (
         <Card
           header={
             profile ? <>Edit profile</> :
@@ -72,7 +71,7 @@ export default function AddEditUser({
                   user: JSON.stringify(user)
                 }
               }}
-              displayHref={`/admin/users/delete?user=${user.email}`}
+              displayHref={`/admin/users/delete?email=${user.email}`}
             >
               Delete account
             </S.FooterActionLink>

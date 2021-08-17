@@ -135,6 +135,11 @@ export default class Api{
     this.#accessToken = body.accessToken;
     this.#sessionActive = true;
     this.#elevated = false;
+
+    return {
+      email: this.#email,
+      userData: body.userData
+    };
   }
   static async request(method,endpoint,payload,abortIfUnauthorized=false){
     

@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import Api from 'api/api';
 import { useRouter } from 'next/router';
 import AppFrame from 'templates/AppFrame';
+import { CurrentUserProvider } from 'use-current-user';
+import { useUpdateCurrentUserData } from 'use-current-user';
 
 function App({ Component, pageProps }) {
 
@@ -13,26 +15,34 @@ function App({ Component, pageProps }) {
 
   const router = useRouter();
 
+  const [user, setUser] = useState({email: Api.currentUser()});
+
   useEffect(()=>{
     if(Api.isSessionActive() || router.pathname === '/login'){
-
       setAuthInitialized(true);
       return;
+    }
 
-    }else if(Api.currentUser()){
-
-      Api.refreshToken().then(()=>{
-        setAuthInitialized(true);
-        if(router.pathname === '/')
-          router.push('/dashboard');
-      }).catch((e)=>{
-        if(e.unauthorized)
-          router.push('/login');
-      });
-
-    }else
+    if(!Api.currentUser()){
       router.push('/login');
-  },[setAuthInitialized,router.pathname]);
+      return;
+    }
+    
+    Api.refreshToken().then(user => {
+      setUser(user);
+      setAuthInitialized(true);
+      if(router.pathname === '/')
+        router.push('/dashboard');
+    }).catch((e)=>{
+      if(e.unauthorized)
+        router.push('/login');
+    });
+
+  },[
+    setAuthInitialized,
+    setUser,
+    router.pathname
+  ]);
 
   useEffect(()=>{
     Api.setOnLogoutListener(()=>{
@@ -51,13 +61,13 @@ function App({ Component, pageProps }) {
       <ThemeProvider theme={ theme }>
         <StyleSheetManager stylisPlugins={plugins}>
           {authInitialized ? (
-            router.pathname == '/login' ? (
-              <Component {...pageProps} />
-            ) : (
-              <AppFrame>
-                <Component {...pageProps} />
-              </AppFrame>
-            )
+            <CurrentUserProvider user={user}>
+              { router.pathname === '/login' ? <Component {...pageProps} /> : (
+                <AppFrame>
+                  <Component {...pageProps} />
+                </AppFrame>
+              )}
+            </CurrentUserProvider>
           ) : <></>}
         </StyleSheetManager>
       </ThemeProvider>

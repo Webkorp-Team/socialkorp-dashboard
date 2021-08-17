@@ -1,6 +1,5 @@
-import ProfileAndPassword from "templates/Users/ProfileAndPassword";
-
+import EditUser from "pages/admin/users/edit";
 
 export default function Profile(){
-  return <ProfileAndPassword/>;
+  return <EditUser selfMode="profile"/>;
 }
