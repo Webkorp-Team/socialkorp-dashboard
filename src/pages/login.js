@@ -1,7 +1,7 @@
 import LoginTemplate from 'templates/Login';
 import PasswordConfirmationTemplate from 'templates/Login/PasswordConfirmation';
 import { useState, useCallback, useRef } from 'react';
-import Api from 'api/api.js';
+import Api from 'api/Api.js';
 import { useRouter } from 'next/router';
 import useCurrentUser, { useUpdateCurrentUserData } from 'use-current-user';
 

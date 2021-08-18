@@ -4,7 +4,7 @@ import WorkspaceRoot from 'components/WorkspaceRoot';
 import Icon from 'components/Icon';
 import * as S from './styles';
 import { useEffect, useState, Fragment } from 'react';
-import Api from 'api/api';
+import Api from 'api/Api';
 import ProgressBar from 'components/ProgressBar';
 
 export default function Users({

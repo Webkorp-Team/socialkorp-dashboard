@@ -1,4 +1,4 @@
-import Api from 'api/api';
+import Api from 'api/Api';
 import { useEffect, useState } from 'react';
 import AppFrame from 'templates/AppFrame';
 import UsersTemplate from 'templates/Users';

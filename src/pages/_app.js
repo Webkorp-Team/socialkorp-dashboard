@@ -3,7 +3,7 @@ import theme from 'styles/theme';
 import Head from 'next/head';
 import { GlobalStyles, plugins } from 'responsive-toolkit';
 import { useEffect, useState } from 'react';
-import Api from 'api/api';
+import Api from 'api/Api';
 import { useRouter } from 'next/router';
 import AppFrame from 'templates/AppFrame';
 import { CurrentUserProvider } from 'use-current-user';

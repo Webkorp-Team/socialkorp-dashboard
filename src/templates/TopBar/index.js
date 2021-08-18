@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import * as S from './styles';
-import Api from 'api/api';
+import Api from 'api/Api';
 import { useRouter } from 'next/router';
 import useCurrentUser from 'use-current-user';
 

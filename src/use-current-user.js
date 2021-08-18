@@ -1,4 +1,4 @@
-import Api from "api/api";
+import Api from "api/Api";
 import { createContext, useContext, useCallback, useState, useEffect } from 'react';
 
 const currentUserContext = createContext();

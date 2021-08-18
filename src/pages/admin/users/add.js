@@ -3,7 +3,7 @@ import AddEditUser from 'templates/Users/AddEditUser';
 import { useEffect, useMemo, useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import PasswordConfirmation from 'components/PasswordConfirmation';
-import Api from 'api/api';
+import Api from 'api/Api';
 
 
 export default function AddUser(){
