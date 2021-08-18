@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 
 import Auth from './auth/index.js';
 import Users from './users/index.js';
+import Website from './website/index.js';
 
 /* -------------- Errors ----------------- */
 
@@ -26,6 +27,9 @@ const website = {
 
 // Admin dashboard endpoints
 const admin = { 
+
+  // Public endpoints used in build time
+  config: express.Router(),
 
   // Auth flow
   // Requires either refresh token or email+password
@@ -52,6 +56,7 @@ v1.use(
   admin.authFlow,
   admin.private,
   admin.elevated,
+  admin.config,
 );
 
 admin.authFlow.use(cookieParser());
@@ -216,6 +221,48 @@ admin.private.get('/users',
     return res.send(
       await Users.listAll()
     );
+  }
+);
+
+/* --------------- Config -------------------- */
+
+admin.config.get('/website/page',
+  async function getPage(
+    {query: {name}},
+    res
+  ){
+    res.send(await Website.getPage(name));
+  }
+);
+
+admin.elevated.put('/website/page',
+  async function putPage(
+    {body: {name,data}},
+    res
+  ){
+    await Website.setPage(name,data);
+    res.sendStatus(204);
+  }
+);
+
+/* --------------- Website -------------------- */
+
+website.public.get('/website/page',
+  async function getPage(
+    {query: {name}},
+    res
+  ){
+    res.send(await Website.getPage(name));
+  }
+);
+
+admin.elevated.put('/website/page',
+  async function putPage(
+    {body: {name,data}},
+    res
+  ){
+    await Website.setPage(name,data);
+    res.sendStatus(204);
   }
 );
 
