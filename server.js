@@ -8,9 +8,11 @@ const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
 
+const config = require('./src/api/website.config.json');
+
 const apiPaths = {
     '/api': {
-        target: 'http://localhost:5000', 
+        target: config.url, 
         pathRewrite: {
             '^/api': '/api'
         },
