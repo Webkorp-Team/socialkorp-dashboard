@@ -4,6 +4,7 @@ module.exports = {
   future: {
     webpack5: true,
   },
+  trailingSlash: true,
   exportPathMap: async function (
     defaultPathMap,
     { dev, dir, outDir, distDir, buildId }
@@ -16,6 +17,7 @@ module.exports = {
       '/admin/users/edit': { page: '/admin/users/edit' },
       '/admin/users/add': { page: '/admin/users/add' },
       '/admin/users/delete': { page: '/admin/users/delete' },
+      '/website': { page: '/website', query:{} },
     }
   },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {

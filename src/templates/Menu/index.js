@@ -1,5 +1,6 @@
 import Icon from 'components/Icon';
 import * as S from './styles';
+import config from 'api/website.config.json';
 
 export default function Menu({
   ...props
@@ -16,14 +17,14 @@ export default function Menu({
         <span>Website</span>
       </S.SectionTitle>
       <S.Section>
-        <S.PageLink>Home Page</S.PageLink>
-        <S.PageLink>About Us</S.PageLink>
-        <S.PageLink>Blog</S.PageLink>
-        <S.PageLink>Events</S.PageLink>
-        <S.PageLink>Contact Us</S.PageLink>
+        {config.pages.map(page => (
+          <S.PageLink key={page.name} href={`/website?page=${page.name}&section=${page.sections[0].name}`}>
+            {page.title}
+          </S.PageLink>
+        ))}
       </S.Section>
       <S.Separator/>
-      <S.SectionTitle>
+      {/* <S.SectionTitle>
         <Icon>storage</Icon>
         <span>Database</span>
       </S.SectionTitle>
@@ -31,7 +32,7 @@ export default function Menu({
         <S.PageLink>Newsletter</S.PageLink>
         <S.PageLink>Contact Forms</S.PageLink>
       </S.Section>
-      <S.Separator/>
+      <S.Separator/> */}
       <S.SectionTitle baseUrl="/admin">
         <Icon>settings</Icon>
         <span>Admin settings</span>

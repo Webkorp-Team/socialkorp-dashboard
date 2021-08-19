@@ -4,34 +4,8 @@
       "target": "admin",
       "public": "build",
       "rewrites": [
-        
         {"source": "/api/v1/**",
-        "function": "api"},
-
-        {"source": "/login",
-        "destination": "/login.html"},
-
-        {"source": "/dashboard",
-        "destination": "/dashboard.html"},
-
-        {"source": "/admin/users",
-        "destination": "/admin/users.html"},
-
-        {"source": "/admin/users/edit",
-        "destination": "/admin/users/edit.html"},
-
-        {"source": "/admin/users/add",
-        "destination": "/admin/users/add.html"},
-
-        {"source": "/admin/users/delete",
-        "destination": "/admin/users/delete.html"},
-
-        {"source": "/profile",
-        "destination": "/profile.html"},
-
-        {"source": "/password",
-        "destination": "/password.html"}
-
+        "function": "api"}
       ]
     }
   ],
