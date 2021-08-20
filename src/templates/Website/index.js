@@ -4,6 +4,7 @@ import WorkspaceRoot from 'components/WorkspaceRoot';
 import { useEffect,useState } from 'react';
 import * as S from './styles';
 import Link from "next/link";
+import ProgressBar from "components/ProgressBar";
 
 export default function Website({
   pageName,
@@ -11,38 +12,38 @@ export default function Website({
   sectionName,
   sections=[],
   url,
-  modified=false,
+  modifiedSections={},
   disabled=false,
+  saved=false,
   onSave=()=>{},
   onDiscard=()=>{},
   iframeRef,
+  ready=true,
 }){
-  
-  // prevent iframe from rendering server side (do we need this?)
-  const [showIframe, setShowIframe] = useState(false);
-  useEffect(()=>{
-    setShowIframe(true);
-  },[setShowIframe]);
+
+  const modified = modifiedSections[sectionName];
 
   return <WorkspaceRoot>
     <WorkspaceTitle>{pageTitle}</WorkspaceTitle>
     <WorkspaceSectionTitle>
       <div>{sections.map(section => (
-        <Link href={`/website?page=${pageName}&section=${section.name}`}>
-          <S.SectionLink data-active={section.name === sectionName} key={section.name}>
+        <Link key={section.name} href={`/website?page=${pageName}&section=${section.name}`}>
+          <S.SectionLink data-modified={modifiedSections[section.name]} data-active={section.name === sectionName} key={section.name}>
             {section.title}
+            {modifiedSections[section.name] ? <> * </> :null}
           </S.SectionLink>
         </Link>
       ))}</div>
       <div>
         <S.ActionButton disabled={disabled} data-noclick={!modified} onClick={onSave}>
-          {modified ? <>Save changes</> : <>Published</>}
+          {modified ? disabled ? <>Saving</> : <>Save changes</> : saved ? <>Saved</> : null}
         </S.ActionButton>  
         <S.ActionButton disabled={disabled || !modified} variant="secondary" onClick={onDiscard}>
           Discard changes
         </S.ActionButton>  
       </div>
     </WorkspaceSectionTitle>
-    {showIframe ? <S.Iframe ref={iframeRef} src={`${url}/preview?page=${pageName}&section=${sectionName}`}/> : null}
+    { !ready ? <ProgressBar/> : null }
+    <S.Iframe data-visible={ready} ref={iframeRef} src={`${url}/preview?page=${pageName}&section=${sectionName}`}/>
   </WorkspaceRoot>;
 }

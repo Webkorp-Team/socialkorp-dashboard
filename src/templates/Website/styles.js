@@ -5,6 +5,9 @@ export const Iframe = styled.iframe`
   margin-top: 30px;
   width: calc(100%);
   min-height: 100vh;
+  &[data-visible=false]{
+    opacity: 0;
+  }
 `;
 export const ActionButton = styled(Button)`
   width: 160px;
@@ -21,6 +24,9 @@ export const ActionButton = styled(Button)`
 export const SectionLink = styled.a`
   &[data-active=false]:not(:hover){
     color: ${p => p.theme.colors.lightText};
+    &[data-modified=true]{
+      color: ${p => p.theme.colors.error};
+    }
   }
   padding: 0 1em;
   &:first-child{
