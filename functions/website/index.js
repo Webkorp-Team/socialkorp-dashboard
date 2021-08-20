@@ -7,9 +7,6 @@ export default class Website{
     await pages.set(pageName,pageData);
   }
   static async getPage(pageName){ // returns pageData
-    const pageData = await pages.get(pageName);
-    if(!pageData)
-      throw new Error(`Page does not exist`);
-    return pageData;
+    return await pages.get(pageName) || {};
   }
 }

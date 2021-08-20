@@ -93,8 +93,10 @@ export default function Website(){
         console.log(`Expected origin ${config.url}, got ${ev.origin}`);
         return;
       }
-      if(ev.data === 'ready'){
+      if(ev.data === 'ready')
         setPreviewReady(true);
+      else if(ev.data.contentHeight){
+        iframeRef.current.style.height = ev.data.contentHeight;
       }else if(ev.data.state)
         setEditorState(state => ({
           ...state,
@@ -105,7 +107,7 @@ export default function Website(){
     return ()=> {
       window.removeEventListener('message',listener);
     };
-  },[sectionName,editorState,publishedState]);
+  },[sectionName,editorState,publishedState,iframeRef]);
 
   const [disabled, setDisabled] = useState(false);
   const [showPwConfirmation, setShowPwConfirmation] = useState(false);
@@ -124,24 +126,32 @@ export default function Website(){
 
     const compiledState = {
       ...publishedState,
-      ...editorState
+      [sectionName]: editorState[sectionName]
     };
 
     Api.put('/website/page',{
       name: pageName,
       data: compiledState
     }).then(()=>{
-      setPublishedState(editorState);
-      setEditorState({});
+      const newEditorState = {
+        ...editorState
+      };
+      delete newEditorState[sectionName];
+
+      setEditorState(newEditorState);
+      setPublishedState(compiledState);
       setDisabled(false);
       setSaved(true);
       updatePublishedState();
-    }).catch(()=>{
+    }).catch((e)=>{
+      if(e.forbidden)
+        return put();
       setDisabled(false);
       setSaved(false);
     }); 
   },[
     pageName,
+    sectionName,
     editorState,
     publishedState,
     pageName,

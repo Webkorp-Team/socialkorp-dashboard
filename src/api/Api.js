@@ -147,8 +147,10 @@ export default class Api{
       await performRequest(method,`${apiRoot}${endpoint}`,payload,this.#accessToken)
     ) : {};
 
-    if(response.status === 403)
+    if(response.status === 403){
+      this.#elevated = false;
       throw new ForbiddenError(response.statusText);
+    }
 
     if(!this.#accessToken || response.status === 401){
 

@@ -4,7 +4,7 @@ import styled from "styled-components";
 export const Iframe = styled.iframe`
   margin-top: 30px;
   width: calc(100%);
-  min-height: 100vh;
+  height: 80vh;
   &[data-visible=false]{
     opacity: 0;
   }
