@@ -1,3 +1,6 @@
 {
-  "websiteConfig": "https://futurehealthspaces.com/website.config.json"
+  "websiteConfig": "https://futurehealthspaces.com/website.config.json",
+  "development":{
+    "websiteConfig": "http://localhost:3000/website.config.json"
+  }
 }

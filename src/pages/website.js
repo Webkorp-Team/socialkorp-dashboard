@@ -13,6 +13,8 @@ function usePrevious(value) {
   return ref.current;
 }
 
+const url = (process.env.NODE_ENV === 'development' ? config.devUrl : null) || config.url;
+
 export default function Website(){
   
   const router = useRouter();
@@ -89,8 +91,8 @@ export default function Website(){
 
   useEffect(()=>{
     const listener = (ev)=>{
-      if(ev.origin !== config.url){
-        console.log(`Expected origin ${config.url}, got ${ev.origin}`);
+      if(ev.origin !== url){
+        console.log(`Expected origin ${url}, got ${ev.origin}`);
         return;
       }
       if(ev.data === 'ready')
@@ -193,7 +195,7 @@ export default function Website(){
       pageTitle={pageInfo.title}
       sectionName={sectionInfo.name}
       sections={sections}
-      url={config.url}
+      url={url}
       modifiedSections={modifiedSections}
       disabled={disabled}
       saved={saved}

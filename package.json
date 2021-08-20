@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "download-config": "node download-config.js",
-    "dev": "npm run download-config && NODE_ENV='development' node server.js",
+    "dev": "NODE_ENV='development' npm run download-config && NODE_ENV='development' node server.js",
     "build": "npm run download-config && next build && npm run export",
     "export": "next export -o build",
     "start": "next start",
