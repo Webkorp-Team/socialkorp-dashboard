@@ -16,7 +16,7 @@ function usePrevious(value) {
 const url = (process.env.NODE_ENV === 'development' ? config.devUrl : null) || config.url;
 
 export default function Website(){
-  
+
   const router = useRouter();
 
   const {

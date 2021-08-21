@@ -5,8 +5,9 @@ import { useEffect,useState } from 'react';
 import * as S from './styles';
 import Link from "next/link";
 import ProgressBar from "components/ProgressBar";
+import styled, { withTheme } from 'styled-components';
 
-export default function Website({
+function _Website({
   pageName,
   pageTitle,
   sectionName,
@@ -19,6 +20,7 @@ export default function Website({
   onDiscard=()=>{},
   iframeRef,
   ready=true,
+  theme
 }){
 
   const modified = modifiedSections[sectionName];
@@ -44,6 +46,9 @@ export default function Website({
       </div>
     </WorkspaceSectionTitle>
     { !ready ? <ProgressBar/> : null }
-    <S.Iframe data-visible={ready} ref={iframeRef} src={`${url}/preview?page=${pageName}&section=${sectionName}`}/>
+    <S.Iframe data-visible={ready} ref={iframeRef} src={`${url}/preview?page=${pageName}&section=${sectionName}&bg=${encodeURIComponent(theme.colors.contentBackground)}`}/>
   </WorkspaceRoot>;
 }
+
+const Website = withTheme(_Website);
+export default Website;
