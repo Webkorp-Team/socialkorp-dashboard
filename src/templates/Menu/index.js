@@ -18,7 +18,7 @@ export default function Menu({
       </S.SectionTitle>
       <S.Section>
         {config.pages.map(page => (
-          <S.PageLink key={page.name} href={`/website?page=${page.name}&section=${page.sections[0].name}`}>
+          <S.PageLink key={page.name} href={`/website?page=${page.name}`}>
             {page.title}
           </S.PageLink>
         ))}

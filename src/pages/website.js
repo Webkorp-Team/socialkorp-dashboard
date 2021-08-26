@@ -21,36 +21,23 @@ export default function Website(){
 
   const {
     page: pageName,
-    section: sectionName
   } = router.query;
 
-  const {pageInfo,sectionInfo,sections} = useMemo(()=>{
-    if(!pageName || !sectionName)
-      return {};
-    const pageInfo = config.pages.filter( ({name}) => name === pageName )[0];
-    const sectionInfo = pageInfo?.sections.filter( ({name}) => name === sectionName )[0];
-    return {
-      pageInfo,
-      sectionInfo,
-      sections: pageInfo?.sections
-    };
-  },[pageName,sectionName]);
+  const pageInfo = useMemo(()=>(
+    !pageName ? null : config.pages.filter( ({name}) => name === pageName )[0]
+  ),[pageName]);
 
   const [saved, setSaved] = useState(false);
   const [previewReady, setPreviewReady] = useState(false);
   const [publishedState, setPublishedState] = useState(null);
-  const [editorState, setEditorState] = useState({});
+  const [editorState, setEditorState] = useState(null);
 
-  const modifiedSections = useMemo(()=>{
-    const obj = {};
-    Object.keys(editorState).forEach(key => obj[key] = true);
-    return obj;
-  },[editorState]);
+  const modified = editorState !== null;
 
-  const postSectionState = useCallback((sectionState)=>{
+  const postPageState = useCallback((pageState)=>{
     iframeRef.current.contentWindow.postMessage({
       setState: true,
-      sectionState
+      pageState
     },'*');
   },[iframeRef]);
 
@@ -64,13 +51,13 @@ export default function Website(){
 
   useEffect(()=>{
     setPublishedState(null);
-    setEditorState({});
+    setEditorState(null);
   },[pageName]);
 
   useEffect(()=>{
     if(!router.isReady)
       return;
-    if(!pageName || !sectionName || !pageInfo || !sectionInfo){
+    if(!pageName || !pageInfo){
       window.location = '/';
       return;
     }
@@ -78,16 +65,16 @@ export default function Website(){
     setPreviewReady(false);
     setFirstStatePosted(false);
     updatePublishedState();
-  },[router.isReady,pageName,sectionName,pageInfo,sectionInfo]);
+  },[router.isReady,pageName,pageInfo]);
 
   useEffect(()=>{
     if(!previewReady || !publishedState)
       return;
-    if(firstStatePosted.current)
+    if(firstStatePosted)
       return;
     setFirstStatePosted(true);
-    postSectionState(editorState[sectionName] || publishedState[sectionName]);
-  },[previewReady,firstStatePosted,sectionName,publishedState,editorState]);
+    postPageState(editorState || publishedState);
+  },[previewReady,firstStatePosted,publishedState,editorState]);
 
   useEffect(()=>{
     const listener = (ev)=>{
@@ -97,19 +84,16 @@ export default function Website(){
       }
       if(ev.data === 'ready')
         setPreviewReady(true);
-      else if(ev.data.contentHeight){
-        iframeRef.current.style.height = ev.data.contentHeight;
-      }else if(ev.data.state)
-        setEditorState(state => ({
-          ...state,
-          [sectionName]: ev.data.state.sectionDraft,
-        }));
+      // else if(ev.data.contentHeight){
+        // iframeRef.current.style.height = ev.data.contentHeight;
+      else if(ev.data.state)
+        setEditorState(ev.data.state.pageDraft);
     };
     window.addEventListener('message',listener);
     return ()=> {
       window.removeEventListener('message',listener);
     };
-  },[sectionName,editorState,publishedState,iframeRef]);
+  },[editorState,publishedState,iframeRef]);
 
   const [disabled, setDisabled] = useState(false);
   const [showPwConfirmation, setShowPwConfirmation] = useState(false);
@@ -128,32 +112,27 @@ export default function Website(){
 
     const compiledState = {
       ...publishedState,
-      [sectionName]: editorState[sectionName]
+      ...editorState
     };
 
-    Api.put('/website/page',{
-      name: pageName,
-      data: compiledState
-    }).then(()=>{
-      const newEditorState = {
-        ...editorState
-      };
-      delete newEditorState[sectionName];
-
-      setEditorState(newEditorState);
+    console.log({compiledState});
+    // Api.put('/website/page',{
+    //   name: pageName,
+    //   data: compiledState
+    // }).then(()=>{
+      setEditorState(null);
       setPublishedState(compiledState);
       setDisabled(false);
       setSaved(true);
       updatePublishedState();
-    }).catch((e)=>{
-      if(e.forbidden)
-        return put();
-      setDisabled(false);
-      setSaved(false);
-    }); 
+    // }).catch((e)=>{
+    //   if(e.forbidden)
+    //     return put();
+    //   setDisabled(false);
+    //   setSaved(false);
+    // }); 
   },[
     pageName,
-    sectionName,
     editorState,
     publishedState,
     pageName,
@@ -169,14 +148,10 @@ export default function Website(){
   },[put]);
 
   const handleDiscard = useCallback(()=>{
-    const newState = {
-      ...editorState
-    };
-    delete newState[sectionName];
-    setEditorState(newState);
+    setEditorState(null);
     setSaved(false);
-    postSectionState(publishedState[sectionName]);
-  },[sectionName,editorState]);
+    postPageState(publishedState);
+  },[publishedState]);
   const handleSave = useCallback(()=>{
     if(editorState)
       return put();
@@ -189,14 +164,12 @@ export default function Website(){
       onLogin={handlePwSubmit}
     /> : null}
 
-    {(pageInfo && sectionInfo) ? <WebsiteTemplate
+    {(pageInfo) ? <WebsiteTemplate
       iframeRef={iframeRef}
       pageName={pageInfo.name}
       pageTitle={pageInfo.title}
-      sectionName={sectionInfo.name}
-      sections={sections}
       url={url}
-      modifiedSections={modifiedSections}
+      modified={modified}
       disabled={disabled}
       saved={saved}
       onSave={handleSave}

@@ -4,7 +4,7 @@ import styled from "styled-components";
 export const Iframe = styled.iframe`
   margin-top: 30px;
   width: calc(100%);
-  height: 80vh;
+  height: calc(100vh - 257px);
   background-color: ${p => p.theme.colors.contentBackground};
   &[data-visible=false]{
     opacity: 0;

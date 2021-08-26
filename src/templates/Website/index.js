@@ -10,10 +10,8 @@ import styled, { withTheme } from 'styled-components';
 function _Website({
   pageName,
   pageTitle,
-  sectionName,
-  sections=[],
   url,
-  modifiedSections={},
+  modified,
   disabled=false,
   saved=false,
   onSave=()=>{},
@@ -23,19 +21,14 @@ function _Website({
   theme
 }){
 
-  const modified = modifiedSections[sectionName];
-
   return <WorkspaceRoot>
     <WorkspaceTitle>{pageTitle}</WorkspaceTitle>
     <WorkspaceSectionTitle>
-      <div>{sections.map(section => (
-        <Link key={section.name} href={`/website?page=${pageName}&section=${section.name}`}>
-          <S.SectionLink data-modified={modifiedSections[section.name]} data-active={section.name === sectionName} key={section.name}>
-            {section.title}
-            {modifiedSections[section.name] ? <> * </> :null}
-          </S.SectionLink>
-        </Link>
-      ))}</div>
+      <div>
+        <S.SectionLink data-active={true}>
+          Editor
+        </S.SectionLink>
+      </div>
       <div>
         <S.ActionButton disabled={disabled} data-noclick={!modified} onClick={onSave}>
           {modified ? disabled ? <>Saving</> : <>Save changes</> : saved ? <>Saved</> : null}
@@ -46,7 +39,7 @@ function _Website({
       </div>
     </WorkspaceSectionTitle>
     { !ready ? <ProgressBar/> : null }
-    <S.Iframe data-visible={ready} ref={iframeRef} src={`${url}/preview?page=${pageName}&section=${sectionName}&bg=${encodeURIComponent(theme.colors.contentBackground)}`}/>
+    <S.Iframe data-visible={ready} ref={iframeRef} src={`${url}/preview?page=${pageName}&bg=${encodeURIComponent(theme.colors.contentBackground)}`}/>
   </WorkspaceRoot>;
 }
 
