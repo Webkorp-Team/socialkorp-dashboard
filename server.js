@@ -12,7 +12,7 @@ const config = require('./src/api/website.config.json');
 
 const apiPaths = {
     '/api': {
-        target: config.url, 
+        target: config.proxyUrl || config.url, 
         pathRewrite: {
             '^/api': '/api'
         },
