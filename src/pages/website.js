@@ -115,22 +115,21 @@ export default function Website(){
       ...editorState
     };
 
-    console.log({compiledState});
-    // Api.put('/website/page',{
-    //   name: pageName,
-    //   data: compiledState
-    // }).then(()=>{
+    Api.put('/website/page',{
+      name: pageName,
+      data: compiledState
+    }).then(()=>{
       setEditorState(null);
       setPublishedState(compiledState);
       setDisabled(false);
       setSaved(true);
       updatePublishedState();
-    // }).catch((e)=>{
-    //   if(e.forbidden)
-    //     return put();
-    //   setDisabled(false);
-    //   setSaved(false);
-    // }); 
+    }).catch((e)=>{
+      if(e.forbidden)
+        return put();
+      setDisabled(false);
+      setSaved(false);
+    }); 
   },[
     pageName,
     editorState,
