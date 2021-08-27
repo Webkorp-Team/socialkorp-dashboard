@@ -1,6 +1,7 @@
 import Database from "../database/index.js";
 import Storage from '../storage/index.js';
 import clone from 'just-clone';
+import crc32 from 'fast-crc32c';
 
 const pages = new Database('website').collection('pages');
 
@@ -17,7 +18,7 @@ export default class Website{
         if(!data.match(/^data:[^;]*;base64,/))
           continue;
 
-        const filename = `${pageName}/${sectionName}/${elementName}`;
+        const filename = `${pageName}/${sectionName}/${elementName}-${crc32.calculate(data)}`;
         page[sectionName][elementName] = await Storage.writeDataUrl(filename,data);
       }
     }
@@ -28,4 +29,3 @@ export default class Website{
     return await pages.get(pageName) || {};
   }
 }
-
