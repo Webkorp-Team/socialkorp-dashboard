@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "download-config": "node download-config.js",
-    "dev": "NODE_ENV='development' npm run download-config && NODE_ENV='development' node server.js",
-    "build": "npm run download-config && next build && npm run export",
+    "handle-upper-level-config": "cd .. && npm run handle-config",
+    "handle-config": "npm run handle-upper-level-config && node copy-config.js",
+    "dev": "NODE_ENV='development' npm run handle-config && NODE_ENV='development' node server.js",
+    "emulators": "cd functions && npm run init && cd .. && firebase emulators:start", 
+    "build": "npm run handle-config && next build && npm run export",
     "export": "next export -o build",
     "start": "next start",
     "deploy": "npm run build && firebase deploy --only hosting:admin"

@@ -37,3 +37,8 @@ ui-debug.log
 # firebase
 .firebase
 firebase-debug.log
+
+# minified copies of config file
+src/api/website.config.json
+website.config.json
+functions/website.config.json
