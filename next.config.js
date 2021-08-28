@@ -1,9 +1,6 @@
 const path = require('path');
 
 module.exports = {
-  future: {
-    webpack5: true,
-  },
   trailingSlash: true,
   exportPathMap: async function (
     defaultPathMap,
@@ -26,10 +23,14 @@ module.exports = {
     // config.resolve.alias['styled-components'] = path.resolve('./node_modules/styled-components');
     // config.resolve.alias['react'] = path.resolve('./node_modules/react');
 
+    // Workaround for bug in Next 11. See https://github.com/vercel/next.js/issues/26130
+    const fileLoaderRule = config.module.rules.find(rule => rule.test && rule.test.test('.svg'))
+    fileLoaderRule.exclude = /\.svg$/
+
     // Adding SVG support
     config.module.rules.push({
       test: [/\.svg$/, /\.woff$/],
-      loader: 'file-loader',
+      loader: require.resolve('file-loader'),
       options: {
           name: '[name].[hash:8].[ext]',
           publicPath: `/_next/static/images/`, //specify the base path
