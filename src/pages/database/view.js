@@ -15,7 +15,7 @@ export default function View({}){
   } = router.query;
 
   const listingPage = useMemo(()=>(
-    `/database?table=${listName}`
+    listName === 'settings' ? '/admin/settings' : `/database?table=${listName}`
   ),[listName]);
 
   const [item, setItem] = useState(null);
@@ -115,3 +115,5 @@ export default function View({}){
   </>;
 
 }
+
+View.getInitialProps = async ({query})=>({query});

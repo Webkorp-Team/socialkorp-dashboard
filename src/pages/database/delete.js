@@ -105,3 +105,5 @@ export default function DeleteItem(){
   </>;
 
 }
+
+DeleteItem.getInitialProps = async ({query})=>({query});

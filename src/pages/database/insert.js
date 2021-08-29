@@ -103,3 +103,5 @@ export default function InsertItem(){
   </>;
 
 }
+
+InsertItem.getInitialProps = async ({query})=>({query});

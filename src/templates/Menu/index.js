@@ -29,7 +29,7 @@ export default function Menu({
         <span>Database</span>
       </S.SectionTitle>
       <S.Section>
-        {config.lists.map(list => (
+        {config.lists.filter(({name}) => name !== 'settings').map(list => (
           <S.PageLink key={list.name} href={`/database?table=${list.name}`}>
             {list.title}
           </S.PageLink>
@@ -42,12 +42,13 @@ export default function Menu({
       </S.SectionTitle>
       <S.Section>
         <S.PageLink href="/admin/users">Users</S.PageLink>
+        <S.PageLink href="/database?table=settings" displayHref="/admin/settings">System settings</S.PageLink>
       </S.Section>
       <S.Separator/>
     </S.AlignTop>
     <S.AlignBottom>
       <S.Separator/>
-      <S.SectionLink>
+      <S.SectionLink href="#">
         <Icon>help_outline</Icon>
         <span>Support</span>
       </S.SectionLink>

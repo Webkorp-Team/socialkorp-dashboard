@@ -8,18 +8,11 @@ module.exports = {
     { dev, dir, outDir, distDir, buildId }
   ) {
     return {
-      '/': { page: '/' },
-      '/login': { page: '/login' },
-      '/dashboard': { page: '/dashboard' },
-      '/admin/users': { page: '/admin/users' },
-      '/admin/users/edit': { page: '/admin/users/edit' },
-      '/admin/users/add': { page: '/admin/users/add' },
-      '/admin/users/delete': { page: '/admin/users/delete' },
-      '/website': { page: '/website', query:{} },
-      '/database': { page: '/database', query:{} },
-      '/database/view': { page: '/database/view', query:{} },
-      '/database/insert': { page: '/database/insert', query:{} },
-      '/database/delete': { page: '/database/delete', query:{} },
+      ...defaultPathMap,
+      '/admin/settings': { page: '/database', query:{table:'settings'} },
+      '/admin/settings/view': { page: '/database/view', query:{table:'settings'} },
+      '/admin/settings/insert': { page: '/database/insert', query:{table:'settings'} },
+      '/admin/settings/delete': { page: '/database/delete', query:{table:'settings'} },
     }
   },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {

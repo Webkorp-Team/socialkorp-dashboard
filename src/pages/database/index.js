@@ -34,3 +34,5 @@ export default function Database(){
     <DatabaseTemplate items={items} listSchema={listSchema}/>
   </>
 }
+
+Database.getInitialProps = async ({query})=>({query});

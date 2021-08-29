@@ -8,6 +8,7 @@ export const Root = styled.div`
 `;
 export const Content = styled.div`
   overflow-y: scroll;
+  overflow-x: hidden;
   /* padding-bottom: 80px; */
 `;
 export const MenuWrapperGrid = styled.div`

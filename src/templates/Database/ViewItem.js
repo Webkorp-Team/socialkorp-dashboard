@@ -50,7 +50,11 @@ export default function ViewItem({
                   data: JSON.stringify(item),
                 }
               }}
-              displayHref={`/admin/users/delete?table=${listSchema.name}&record=${itemId}`}
+              displayHref={
+                listSchema.name === 'settings'
+                ? `/admin/settings/delete&record=${itemId}`
+                : `/database/delete?table=${listSchema.name}&record=${itemId}`
+              }
             >
               Delete {listSchema.singular}
             </S.FooterActionLink> : null
@@ -61,7 +65,7 @@ export default function ViewItem({
           </>:null}
           <S.CardLayout>
             {listSchema.properties.map(property => (
-              console.log(property),
+              property.type == 'hidden' ? <div/> :
               property.type === 'file' ? (
                 property.accept.match(/^image\b/) ? <Fragment key={property.name}>
                   <ImageUpload

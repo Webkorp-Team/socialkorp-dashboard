@@ -45,11 +45,11 @@ export const ExpansiveSection = styled.div`
   font-size: 16px;
   line-height: 64px;
 
-  transition: opacity .25s .75s, font-size 1s;
+  transition: opacity 0.1875s 0.5625s, font-size 0.75s;
   &[data-collapse=true]{
     opacity: 0;
     font-size: 0;
-    transition: opacity .25s, font-size 1s 0s;
+    transition: opacity 0.1875s, font-size 0.75s 0s;
   }
 `;
 export const UserName = styled.div`
@@ -94,9 +94,9 @@ export const ExpandButton = styled.div.attrs({
   
   color: ${p => p.theme.colors.textOverPrimary};
 
-  transition: transform 1s;
+  transition: transform 0.75s;
   &[data-collapse=true]{
-    transition: transform 1s;
+    transition: transform 0.75s;
     transform: rotate(90deg);
   }
 

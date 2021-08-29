@@ -4,17 +4,19 @@ import NextLink from "next/link";
 import Link from "components/Link";
 import { useRouter } from "next/router";
 
-const UnstyledLink = ({href,...props})=>{
+const UnstyledLink = ({href,displayHref,...props})=>{
   
   const router = useRouter();
 
   const search = typeof window !== 'undefined' ? window.location.search : '';
   
-  return <Link href={href} data-active={
+  return <NextLink href={href} as={displayHref} data-active={
     `${router.pathname}${search}` === href
   } data-child-active={
     false
-  } {...props}/>
+  } {...props}>
+    <a {...props}/>
+  </NextLink>;
 };
 
 export const Root = styled.div`
@@ -80,7 +82,7 @@ export const SectionTitle = styled(_SectionTitle)`
     border-right: 7px solid transparent;
     border-top: 7px solid ${p => p.theme.colors.text};
 
-    transition: transform 0.5s;
+    transition: transform 0.25s;
   }
   &:hover,&[data-active=true]{
     & > *{
@@ -107,11 +109,11 @@ export const Section = styled.div`
   font-size: 16px;
   margin: ${24/16}em 0 ${21/16}em 42px;
 
-  transition: opacity .25s 1s, font-size 1s;
+  transition: opacity .125s .5s, font-size .5s;
   [data-collapse=true] + &{
     opacity: 0;
     font-size: 0;
-    transition: opacity .25s, font-size 1s .25s;
+    transition: opacity .125s, font-size .5s .125s;
   }
 `;
 export const PageLink = styled(UnstyledLink)`

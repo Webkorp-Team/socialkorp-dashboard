@@ -4,58 +4,45 @@ import Button from '../../components/Button';
 
 export const Table = styled.div`
   margin-top: 40px;
+  display: table;
+  width: calc(100% + 40px);
+  position: relative;
+  left: -20px;
 
 `;
 
 export const TableHead = styled.div`
   display: grid;
-  width: 100%;
-  grid-template-columns: repeat(5,300px);
+  /* grid-template-columns: repeat(5,350px); */
+  display: table-row;
 `;
 
-export const TableRow = styled(TableHead)`
-  border-bottom: 1pxc solid ${p => p.theme.colors.gray1};
-  
-  position: relative;
-  &:before{
-    border-bottom: 1pxc solid transparent;
-    position: absolute;
-    display: inline-block;
-    background: green;
-    height: 100%;
-    top: 0;
-    width: 20px;
-    left: -20px;
-    content: '';
-  }
-  &:after{
-    border-bottom: 1pxc solid transparent;
-    position: absolute;
-    display: inline-block;
-    background: green;
-    height: 100%;
-    top: 0;
-    width: 20px;
-    right: -20px;
-    content: '';
-  }
-  
-  &,&:before,&:after{
-    background-color: transparent;
-    transition: background-color 200ms;
-  }
+export const TableRow = styled(TableHead).attrs({
+  as: 'a'
+})`
+  background-color: transparent;
+  transition: background-color 200ms;
   &:hover{
-    &,&:before,&:after{
-      background: ${p => p.theme.colors.gray1};
-      border-bottom-color: ${p => p.theme.colors.gray1};
-    }
+    background: ${p => p.theme.colors.gray1};
   }
+
+  & > :last-child             {width:    0px;} // 7+ columns
+  & > :last-child:nth-child(7){width:  200px;} // 6  columns
+  & > :last-child:nth-child(6){width:  400px;} // 5  columns
+  & > :last-child:nth-child(5){width:  600px;} // 4  columns
+  & > :last-child:nth-child(4){width:  800px;} // 3  columns
+  & > :last-child:nth-child(3){width: 1200px;} // 2  columns
+  & > :last-child:nth-child(2){width: 1400px;} // 1  columns
 `;
 
 export const TableHeadCell = styled.div`
   font-size: 14px;
   line-height: 43px;
   color: ${p => p.theme.colors.lightText};
+  display: table-cell;
+  &:first-child{
+    padding-left: 20px;
+  }
 
   & i{
     font-size: 24px;
@@ -66,6 +53,18 @@ export const TableCell = styled.div`
   font-size: 16px;
   line-height: 43px;
   color: ${p => p.theme.colors.text};
+  display: table-cell;
+  max-width: 400px;
+  &:first-child{
+    padding-left: 20px;
+  }
+
+  border-bottom: 1pxc solid ${p => p.theme.colors.gray1};
+
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  padding-right: 1em;
 
   & small{
     font: inherit;
