@@ -8,6 +8,8 @@ import TextField from 'components/TextField';
 import Api from 'api/Api';
 import { useRouter } from 'next/router';
 import ProgressBar from 'components/ProgressBar';
+import ImageUpload from 'components/ImageUpload';
+import { Fragment } from 'react';
 
 export default function ViewItem({
   item,
@@ -60,7 +62,16 @@ export default function ViewItem({
           <S.CardLayout>
             {listSchema.properties.map(property => (
               property.type === 'file' ? (
-                null
+                property.accept.match(/^image\b/) ? <Fragment key={property.name}>
+                  <ImageUpload
+                    accept={property.accept}
+                    label={property.title}
+                    name={property.name}
+                    readOnly={property.readOnly}
+                    defaultValue={item ? item[property.name] : ''}
+                  />
+                  <div/>
+                </Fragment> : null
               ):property.type === 'select' ? (
                 null
               ):(

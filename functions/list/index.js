@@ -2,6 +2,8 @@ import Database from "../database/index.js";
 import { NotFoundError, UnauthorizedError } from "../errors.js";
 import fs from 'fs';
 import crypto from 'crypto';
+import crc32 from 'fast-crc32c';
+import Storage from "../storage/index.js";
 
 function sha256(data){
   return crypto.createHash('sha256').update(data).digest('hex');
@@ -33,11 +35,13 @@ export default class List{
   #archive;
   #accessControl;
   #indexedFields;
+  #listName;
 
   constructor(listName,authenticatedUser=null){
     this.#index = new Database('lists-index').collection(listName);
     this.#data = new Database('lists-data').collection(listName);
     this.#archive = new Database('lists-archive').collection(listName);
+    this.#listName = listName;
 
     const schema = (
       config.lists.filter(list => list.name === listName)[0]
@@ -120,10 +124,17 @@ export default class List{
     const indexEntry = {};
     const dataEntry = {};
     for(const key in data){
+      const value = data[key].match(/^data:[^;]*;base64,/) ? (
+        await Storage.writeDataUrl(
+          `${this.#listName}-list/${itemId}/${key}-${crc32.calculate(data[key])}`,
+          data[key]
+        )
+      ) : data[key];
+
       if(this.#indexedFields.includes(key))
-        indexEntry[key] = data[key];
+        indexEntry[key] = value;
       else
-        dataEntry[key] = data[key];
+        dataEntry[key] = value;
     }
 
     await this.#index.set(itemId,indexEntry);

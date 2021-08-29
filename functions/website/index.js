@@ -13,8 +13,6 @@ export default class Website{
       for(const elementName in page[sectionName]){
         const data = page[sectionName][elementName];
 
-        console.log(data.slice(0,10),data.match(/^data:[^;]*;base64,/));
-
         if(!data.match(/^data:[^;]*;base64,/))
           continue;
 

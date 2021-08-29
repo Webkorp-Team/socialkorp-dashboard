@@ -16,7 +16,9 @@ export default function Database({
 
   const indexedProperties = useMemo(()=>(
     listSchema.properties.filter(property => (
-      !listSchema.index ? true : listSchema.index.includes(property.name)
+      !listSchema.index && !listSchema.listing ? true : (
+        (listSchema.listing || listSchema.index).includes(property.name)
+      )
     ))
   ),[listSchema]);
 
