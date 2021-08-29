@@ -7,96 +7,110 @@ import cookieParser from 'cookie-parser';
 import Auth from './auth/index.js';
 import Users from './users/index.js';
 import Website from './website/index.js';
+import { MissingParameterError, NotFoundError, UnauthorizedError } from './errors.js';
+import List from './list/index.js';
 
-/* -------------- Errors ----------------- */
+/* ----------- Common middleware settings ------------ */
 
-class MissingParameterError extends Error{
-  constructor(parameter){
-    super(`Missing parameter "${parameter}"`);
-  }
-}
+const rootApp = express();
 
-/* ------------ Endpoint categories ---------- */
+const app = express.Router();
 
-// Website endpoints
-const website = { 
+rootApp.use('/api/v1',app);
 
-  // Public data fetching endpoints
-  public: express.Router(),
-};
-
-// Admin dashboard endpoints
-const admin = { 
-
-  // Public endpoints used in build time
-  config: express.Router(),
-
-  // Auth flow
-  // Requires either refresh token or email+password
-  // Returns 401 on all errors
-  authFlow: express.Router(), 
-
-  // Requires a valid access token
-  private: express.Router(),
-
-  // Requires an elevated access token
-  elevated: express.Router(),
-};
-
-/* ----------- Middleware settings ------------ */
-
-const app = express();
-
-const v1 = express.Router();
-
-app.use('/api/v1',v1);
-
-v1.use(
-  website.public,
-  admin.authFlow,
-  admin.private,
-  admin.elevated,
-  admin.config,
-);
-
-admin.authFlow.use(cookieParser());
-  
-admin.private.use(bearerToken({
+const parseBearerToken = bearerToken({
   headerKey: 'Bearer',
   bodyKey: false,
   queryKey: false,
   reqKey: false,
   cookie: false,
-}));
-
-admin.private.use(
-  async function verifyAccessToken(req,res,next){
-    if(!req.token)
-      throw new Error('Missing access token');
-    
-    const {
-      sub: subject,
-      elv: elevated
-    } = await Auth.Token.verify(req.token);
-
-    req.subject = subject;
-    req.elevated = elevated;
-    return next();
-  },
-  async function catchAccessTokenErrors(error,req,res,next){
-    return res.status(401).send(error.message);
-  }
-);
-
-admin.elevated.use(admin.private);
-
-admin.elevated.use(
-  function checkElevation(req,res,next){
-    if(!req.elevated)
-      return res.status(403).send('Login again');
+});
+  
+async function verifyAccessToken(req,res,next){
+  if(!req.token){
+    req.subject = null;
+    req.elevated = false;
     return next();
   }
-);
+
+  const {
+    sub: subject,
+    elv: elevated
+  } = await Auth.Token.verify(req.token);
+
+  req.subject = subject;
+  req.elevated = elevated;
+  return next();
+}
+
+async function requireAuthentication(req,res,next){
+  if(!req.subject)
+    throw new Error('Missing access token');
+  return next();
+}
+
+async function catchAccessTokenErrors(error,req,res,next){
+  return res.set('WWW-Authenticate','Bearer').status(401).send(error.message);
+}
+
+function catchAuthFlowErrors(error,req,res,next){
+  return res.status(401).send(error.message);
+}
+
+function checkElevation(req,res,next){
+  if(!req.elevated)
+    return res.status(403).send('Login again');
+  return next();
+}
+
+
+/* ------------ Endpoint-specific middleware settings ---------- */
+
+// Website endpoints
+const website = { 
+
+  // Public data fetching endpoints
+  public: [],
+};
+
+// Admin dashboard endpoints
+const admin = {
+
+  // Auth flow
+  // Requires either refresh token or email+password
+  // Returns 401 on all errors
+  authFlow: [
+    cookieParser(),
+  ], 
+
+  // Requires a valid access token
+  private: [
+    parseBearerToken,
+    verifyAccessToken,
+    requireAuthentication,
+    catchAccessTokenErrors,
+  ],
+
+  // Requires an elevated access token
+  elevated: [
+    parseBearerToken,
+    verifyAccessToken,
+    requireAuthentication,
+    catchAccessTokenErrors,
+    checkElevation,
+  ],
+};
+
+const database = {
+
+  // Optional authentication. 
+  // Authorization is checked at higher level code.
+  mixed: [
+    parseBearerToken,
+    verifyAccessToken,
+    catchAccessTokenErrors
+  ]
+}
 
 /* ------------- Auth ------------------ */
 
@@ -106,7 +120,7 @@ const refreshTokenCookieOptions = {
   secure: true,
 }
 
-admin.authFlow.post('/user/login',
+app.post('/user/login',...admin.authFlow,
   async function userLogin({
     body: {email,password}
   },res){
@@ -123,10 +137,11 @@ admin.authFlow.post('/user/login',
       accessToken,
       userData
     });
-  }
+  },
+  catchAuthFlowErrors
 );
 
-admin.authFlow.post('/user/refreshLogin',
+app.post('/user/refreshLogin',...admin.authFlow,
   async function userRefreshLogin({
     body: { email },
     cookies: { refreshToken: currentRefreshToken }
@@ -150,16 +165,13 @@ admin.authFlow.post('/user/refreshLogin',
       accessToken,
       userData
     });
-  }
+  },
+  catchAuthFlowErrors
 );
 
-admin.authFlow.use(
-  function catchAuthFlowErrors(error,req,res,next){
-    return res.status(401).send(error.message);
-  }
-);
 
-admin.private.post('/user/logout',
+app.post('/user/logout',
+  ...admin.private,
   async function userLogout({subject},res){
     await Users.logout(subject);
     return res.sendStatus(204);
@@ -168,7 +180,8 @@ admin.private.post('/user/logout',
 
 /* -------------- Users --------------- */
 
-admin.elevated.post('/user',
+app.post('/user',
+  ...admin.elevated,
   async function createUser({
     body: {email,password,userData},
   },res){
@@ -185,7 +198,8 @@ admin.elevated.post('/user',
   }
 );
 
-admin.elevated.put('/user',
+app.put('/user',
+  ...admin.elevated,
   async function updateUser({
     body: {email,password,userData}
   },res){
@@ -200,7 +214,8 @@ admin.elevated.put('/user',
   }
 );
 
-admin.elevated.delete('/user',
+app.delete('/user',
+  ...admin.elevated,
   async function deleteUser({
     body: {email},
     subject
@@ -216,7 +231,8 @@ admin.elevated.delete('/user',
   }
 );
 
-admin.private.get('/users',
+app.get('/users',
+  ...admin.private,
   async function listUsers(req,res){
     return res.send(
       await Users.listAll()
@@ -224,30 +240,10 @@ admin.private.get('/users',
   }
 );
 
-/* --------------- Config -------------------- */
-
-admin.config.get('/website/page',
-  async function getPage(
-    {query: {name}},
-    res
-  ){
-    res.send(await Website.getPage(name));
-  }
-);
-
-admin.elevated.put('/website/page',
-  async function putPage(
-    {body: {name,data}},
-    res
-  ){
-    await Website.setPage(name,data);
-    res.sendStatus(204);
-  }
-);
-
 /* --------------- Website -------------------- */
 
-website.public.get('/website/page',
+app.get('/website/page',
+  ...website.public,
   async function getPage(
     {query: {name}},
     res
@@ -256,32 +252,127 @@ website.public.get('/website/page',
   }
 );
 
-admin.elevated.put('/website/page',
+app.put('/website/page',
+  ...admin.elevated,
   async function putPage(
     {body: {name,data}},
     res
   ){
     await Website.setPage(name,data);
     res.sendStatus(204);
+  }
+);
+
+/* --------------- Database -------------------- */
+
+app.get('/list/item',
+  ...database.mixed,
+  async function getListItem(
+    {subject, query: {listName,itemId}},
+    res
+  ){
+    res.send(
+      await (new List(
+        listName,
+        subject
+      )).get(itemId)
+    );
+  }
+);
+
+app.put('/list/item',
+  ...database.mixed,
+  async function setListItem(
+    {subject, body: {listName,itemId,data}},
+    res
+  ){
+    await (new List(
+      listName,
+      subject
+    )).set(itemId,data);
+    res.sendStatus(204);
+  }
+);
+
+app.post('/list/item',
+  ...database.mixed,
+  async function insertListItem(
+    {subject, body: {listName,data}},
+    res
+  ){
+    res.send({
+      itemId: await (new List(
+        listName,
+        subject
+      )).insert(data)
+    });
+  }
+);
+
+app.delete('/list/item',
+  ...database.mixed,
+  async function deleteListItem(
+    {subject, body: {listName,itemId}},
+    res
+  ){
+    await (new List(
+      listName,
+      subject
+    )).delete(itemId);
+    res.sendStatus(204);
+  }
+);
+
+app.get('/list/index',
+  ...database.mixed,
+  async function getListIndex(
+    {subject, query: {listName}},
+    res
+  ){
+    res.send(
+      await (new List(
+        listName,
+        subject
+      )).getIndex()
+    );
+  }
+);
+
+app.get('/list/archive',
+  ...database.mixed,
+  async function getListArchive(
+    {subject, query: {listName}},
+    res
+  ){
+    res.send(
+      await (new List(
+        listName,
+        subject
+      )).getArchive()
+    );
   }
 );
 
 /* ---------- Generic Error handling ---------- */
 
-v1.use(
+app.use(
   function catchCustomErrors(error,req,res,next){
     if(error instanceof MissingParameterError)
       return res.status(422).send(error.message);
+    if(error instanceof UnauthorizedError)
+      return res.set('WWW-Authenticate','Bearer').status(401).send(error.message);
+    if(error instanceof NotFoundError)
+      return res.status(404).send(error.message);
     return next(error);
   }
 );
 
 /* --------------  404  --------------- */
 
-app.all('*',(req,res)=>{
+rootApp.all('*',(req,res)=>{
   return res.sendStatus(404);
 });
 
 /* ------------ Firebase -------------- */
 
-export const api = functions.https.onRequest(app);
+export const api = functions.https.onRequest(rootApp);

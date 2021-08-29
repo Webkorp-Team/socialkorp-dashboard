@@ -7,26 +7,14 @@ import { useRouter } from "next/router";
 const UnstyledLink = ({href,...props})=>{
   
   const router = useRouter();
+
+  const search = typeof window !== 'undefined' ? window.location.search : '';
   
   return <Link href={href} data-active={
-    router.pathname === href
-  } {...props}/>
-};
-const _UnstyledLink = ({href,...props})=>{
-  
-  const router = useRouter();
-  
-  const link = <a data-active={
-    router.pathname === href
+    `${router.pathname}${search}` === href
   } data-child-active={
-    href.startsWith(router.pathname+'/')
-  } {...props}/>;
-
-  return href ? (
-    <NextLink href={href}>
-      {link}
-    </NextLink>
-  ) : link
+    false
+  } {...props}/>
 };
 
 export const Root = styled.div`

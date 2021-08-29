@@ -46,13 +46,13 @@ export default function AddEditUser({
   return <WorkspaceRoot>
     <WorkspaceTitle>Users</WorkspaceTitle>
     <WorkspaceSectionTitle>
-      {
+      <div>{
         profile || password ? <>My profile</> :
         user ? <>Edit user</> : <>Add user</>
-      }
+      }</div>
     </WorkspaceSectionTitle>
-    <S.Layout data-slim={profile||password}>{
-      user && !user.userData ? <ProgressBar/> : (
+    {user && !user.userData ? <ProgressBar/> : (
+      <S.Layout data-slim={profile||password}>
         <Card
           header={
             profile ? <>Edit profile</> :
@@ -130,7 +130,7 @@ export default function AddEditUser({
             </div>
           </S.CardLayout>
         </Card>
-      )
-    }</S.Layout>
+      </S.Layout>
+    )}
   </WorkspaceRoot>
 }

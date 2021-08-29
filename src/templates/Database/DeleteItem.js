@@ -7,8 +7,9 @@ import * as S from './styles';
 import TextField from 'components/TextField';
 import ProgressBar from 'components/ProgressBar';
 
-export default function DeleteUser({
-  user,
+export default function DeleteItem({
+  item,
+  listSchema,
   onSubmit=()=>{},
   onCancel=()=>{},
   disabled=false,
@@ -34,48 +35,41 @@ export default function DeleteUser({
     onCancel(e);
   },[onCancel]);
 
-  const name = useMemo(()=>{
-    if(!user.userData || !user.userData.firstName)
-      return user.email;
-    else return `${user.userData.firstName} ${user.userData.lastName}`;
-  },[user]);
-
   return <WorkspaceRoot>
-    <WorkspaceTitle>{name}</WorkspaceTitle>
+    <WorkspaceTitle>{listSchema.title}</WorkspaceTitle>
     <WorkspaceSectionTitle>
-      <div>Account</div>
+      <div><S.Capitalize>{listSchema.singular}</S.Capitalize></div>
     </WorkspaceSectionTitle>
-    <S.Layout>{!user.userData ? <ProgressBar/> : (
+    <S.Layout>{!item ? <ProgressBar/> : (
       <Card
-        header={<>Delete account</>}
+        header={<>Delete {listSchema.singular}</>}
       >
+        <S.CardLayout>
+          {listSchema.properties.map(property => (
+            property.type === 'file' ? (
+              null
+            ):(
+              <TextField
+                key={property.name}
+                type="text"
+                label={property.title}
+                placeholder={'<empty>'}
+                readOnly={true}
+                value={item[property.name]}
+              />
+            )
+          ))}
+        </S.CardLayout>
+        <S.Spacer count={10}/>
         <S.CardLayout as="form" onSubmit={handleSubmit}>
-
-          <div>
-            <CardSectionTitle>
-              Name
-            </CardSectionTitle>
-            <S.Spacer count={4}/>
-            <TextField readOnly={true} name="firstName" placeholder="No given names set" defaultValue={user ? user.userData.firstName : ''}/>
-            <S.Spacer count={2}/>
-            <TextField readOnly={true} name="lastName" placeholder="No surname set" defaultValue={user ? user.userData.lastName : ''}/>
-          </div>
           
-          <div>
-            <CardSectionTitle>
-              Email
-            </CardSectionTitle>
-            <S.Spacer count={4}/>
-            <TextField readOnly={true} name="email" defaultValue={user ? user.email : user} placeholder="E-mail"/>
-          </div>
-
           <div>
             <CardSectionTitle>
               Confirmation
             </CardSectionTitle>
             <S.Spacer count={4}/>
             <S.HelpText>
-              To permanently delete this account, type the word "delete" in the box below.
+              To permanently delete this {listSchema.singular}, type the word "delete" in the box below.
               <br/><br/>
               This action is irreversible!
             </S.HelpText>
@@ -86,9 +80,8 @@ export default function DeleteUser({
           </div>
           
           <div></div>
-          
+
           <div>
-            {/* <S.Spacer count={6}/> */}
             <S.ActionButton disabled={disabled} variant="primary">
               Delete
             </S.ActionButton>

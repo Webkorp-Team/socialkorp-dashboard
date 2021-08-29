@@ -25,3 +25,13 @@ export const TextField = styled.input.attrs(p=>{return{
   }
 `;
 
+export const Label = styled.label`
+  display: block;
+
+  & span{
+    display: block;
+    font-size: 14px;
+    padding-bottom: 8px;
+  }
+`;
+

@@ -1,63 +1,73 @@
-import DeleteUserTemplate from 'templates/Users/DeleteUser';
+import DeleteItemTemplate from 'templates/Database/DeleteItem';
 import { useEffect, useMemo, useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import PasswordConfirmation from 'components/PasswordConfirmation';
 import Api from 'api/Api';
+import config from 'api/website.config.json';
 
 
-export default function DeleteUser(){
+export default function DeleteItem(){
 
   const router = useRouter();
   
-  const [user, setUser] = useState({});
+  const {
+    table: listName,
+    record: itemId,
+    data: itemData
+  } = router.query;
+
+  const listingPage = useMemo(()=>(
+    `/database?table=${listName}`
+  ),[listName]);
+
+  const [item, setItem] = useState(null);
 
   useEffect(()=>{
     if(!router.isReady)
       return;
-    else if(router.query.email)
-      setUser({email:router.query.email});
-    else if(router.query.user)
-      try{
-        setUser(JSON.parse(router.query.user));
-      }catch(e){
-        setUser(null);
-      }
-    else
-      setUser(null);
-  },[router]);
-
-  useEffect(()=>{
-    if(!user || user.email === Api.currentUser()){
-      router.replace('/admin/users');
+    if(!listName || !itemId){
+      router.replace('/');
       return;
     }
-    if(!user.email)
+    if(itemData){
+      try{
+        setItem(JSON.parse(itemData));
+      }catch(e){
+        router.replace(listingPage);
+      }
       return;
-    if(user.userData)
-      return;
+    }
     
-    Api.get('/users').then(list => {
-      setUser(list.filter(u => u.email === user.email)[0] || null);
-    }).catch(()=>{});
+    Api.get('/list/item',{
+      listName,
+      itemId
+    }).then(item => {
+      setItem(item);
+    }).catch(()=>{
+      router.replace(listingPage);
+    });
+  },[router,listName,itemId,itemData,listingPage]);
 
-  },[user]);
+  const listSchema = useMemo(()=>(
+    !listName ? null : config.lists.filter( ({name}) => name === listName )[0]
+  ),[listName]);
 
   const [showPwConfirmation, setShowPwConfirmation] = useState(false);
   const [disabled, setDisabled] = useState(false);
 
   const doDelete = useCallback(()=>{
-    const email = user.email;
     setDisabled(true);
-    Api.delete('/user',{
-      email,
+    Api.delete('/list/item',{
+      listName,
+      itemId,
     }).then(()=>{
-      router.push('/admin/users');
+      router.push(listingPage);
     }).catch(()=>{
       setDisabled(false);
     }); 
   },[
     setDisabled,
-    user,
+    item,
   ]);
 
   const handleSubmit = useCallback(()=>{
@@ -71,7 +81,7 @@ export default function DeleteUser(){
     }
   },[setShowPwConfirmation,setDisabled,doDelete]);
   const handleCancel = useCallback((e)=>{
-    router.push('/admin/users');
+    router.push(listingPage);
   },[router]);
   const handlePwCancel = useCallback((e)=>{
     setDisabled(false);
@@ -91,7 +101,7 @@ export default function DeleteUser(){
       onCancel={handlePwCancel}
       onLogin={handlePwSubmit}
     /> : null}
-      {!user ? null : <DeleteUserTemplate disabled={disabled} onCancel={handleCancel} onSubmit={handleSubmit} user={user}/>}
+      {!item ? null : <DeleteItemTemplate disabled={disabled} onCancel={handleCancel} onSubmit={handleSubmit} listSchema={listSchema} item={item}/>}
   </>;
 
 }

@@ -24,15 +24,18 @@ export default function Menu({
         ))}
       </S.Section>
       <S.Separator/>
-      {/* <S.SectionTitle>
+      <S.SectionTitle>
         <Icon>storage</Icon>
         <span>Database</span>
       </S.SectionTitle>
       <S.Section>
-        <S.PageLink>Newsletter</S.PageLink>
-        <S.PageLink>Contact Forms</S.PageLink>
+        {config.lists.map(list => (
+          <S.PageLink key={list.name} href={`/database?table=${list.name}`}>
+            {list.title}
+          </S.PageLink>
+        ))}
       </S.Section>
-      <S.Separator/> */}
+      <S.Separator/>
       <S.SectionTitle baseUrl="/admin">
         <Icon>settings</Icon>
         <span>Admin settings</span>
