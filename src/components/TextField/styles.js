@@ -10,6 +10,7 @@ export const TextField = styled.input.attrs(p=>{return{
   color: ${p => p.theme.colors.text};
   font-weight: 400;
   font-size: 20px;
+  height: 32px;
   
   &::placeholder{
     color: ${p => p.theme.colors.gray2};

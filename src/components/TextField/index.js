@@ -6,7 +6,7 @@ export default function TextField({
   ...props
 }){
 
-  const field = <S.TextField type={type} {...props}/>
+  const field = <S.TextField type={type} {...props}/>;
 
   return label ? (
     <S.Label>
