@@ -61,10 +61,8 @@ export default function View({}){
     }
 
     const data = {};
-    for(const property of listSchema.properties){
-      console.log(property.name,form[property.name]);
+    for(const property of listSchema.properties)
       data[property.name] = form[property.name]?.value;
-    }
 
     setDisabled(true);
 

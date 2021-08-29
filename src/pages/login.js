@@ -32,7 +32,6 @@ export default function Login({
       if(!passwordConfirmation){
         router.push('/dashboard');
         updateCurrentUserData(userData);
-        console.log(userData);
       }else
         onLogin();
     }).catch(error => {

@@ -1,4 +1,5 @@
 const path = require('path');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   trailingSlash: true,
@@ -15,6 +16,10 @@ module.exports = {
       '/admin/users/add': { page: '/admin/users/add' },
       '/admin/users/delete': { page: '/admin/users/delete' },
       '/website': { page: '/website', query:{} },
+      '/database': { page: '/database', query:{} },
+      '/database/view': { page: '/database/view', query:{} },
+      '/database/insert': { page: '/database/insert', query:{} },
+      '/database/delete': { page: '/database/delete', query:{} },
     }
   },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
@@ -37,6 +42,16 @@ module.exports = {
           outputPath: 'static/images', //and output path
       }
     });
+
+    
+    config.optimization.minimizer = [
+      new TerserPlugin({
+        parallel: true,
+        terserOptions: {
+          compress: { evaluate: false }
+        },
+      }),
+    ];
 
     return config;
   },
