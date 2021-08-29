@@ -14,7 +14,7 @@ function getValue(data){
 async function getSnapshot(databaseName,collectionName,limit){
   return await firestore.collection(
     makeKey(databaseName, collectionName)
-  ).orderBy('_timestamp').limit(limit).get();
+  ).orderBy('_timestamp','desc').limit(limit).get();
 }
 
 export default class Collection{

@@ -11,6 +11,15 @@ reducer._create_blob = function (env) {
     });
 };
 
+const pngReducer = imageBlobReduce();
+pngReducer._create_blob = function (env) {
+  return this.pica.toBlob(env.out_canvas, 'image/png', 0.85)
+    .then(function (blob) {
+      env.out_blob = blob;
+      return env;
+    });
+};
+
 export default function ImageUpload({
   label=null,
   accept="image/*",
@@ -25,7 +34,8 @@ export default function ImageUpload({
   const handleChange = useCallback((e)=>{
     if(!e.target.files[0])
       return;
-    reducer.toBlob(e.target.files[0],{max:1600}).then(resizedImage => {
+    const pngOnly = (accept === 'image/png');
+    ( pngOnly ? pngReducer : reducer ).toBlob(e.target.files[0],{max:1600}).then(resizedImage => {
       const reader = new FileReader();
       reader.addEventListener("load", function () {
         setSrc(URL.createObjectURL(resizedImage));
@@ -33,7 +43,7 @@ export default function ImageUpload({
       }, false);
       reader.readAsDataURL(resizedImage);
     });
-  },[]);
+  },[accept]);
 
   return <>
     <S.Label>

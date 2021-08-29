@@ -27,7 +27,19 @@ export async function generateId(collection){
   return id;
 }
 
-
+function sort(array,options){
+  const {property,direction} = options || {}; 
+  if(!property)
+    return array;
+  const multiplier = direction && direction.startsWith('desc') ? -1 : 1;
+  return array.sort((a,b) => (
+    (
+      a[property] < b[property] ? -1 :
+      a[property] > b[property] ? 1 :
+      0
+    )*multiplier
+  ));
+}
 
 export default class List{
   #index;
@@ -36,6 +48,7 @@ export default class List{
   #accessControl;
   #indexedFields;
   #listName;
+  #sort;
 
   constructor(listName,authenticatedUser=null){
     this.#index = new Database('lists-index').collection(listName);
@@ -49,6 +62,8 @@ export default class List{
 
     if(!schema)
       throw new NotFoundError('Unknown list');
+
+    this.#sort = schema.sort;
 
     this.#indexedFields = schema.index || null;
 
@@ -90,13 +105,17 @@ export default class List{
     if(!this.#accessControl.read)
       throw new UnauthorizedError();
 
-    return await this.#index.getAll();
+    const result = await this.#index.getAll();
+
+    return sort(result,this.#sort);
   }
   async getArchived(){
     if(!this.#accessControl.read)
       throw new UnauthorizedError();
 
-    return await this.#archive.getAll();
+    const result = await this.#archive.getAll();
+
+    return sort(result,this.#sort);
   }
 
   async set(itemId,data){
@@ -115,12 +134,6 @@ export default class List{
     if(archiveEntry)
       await this.#archive.delete(itemId);
 
-    if(!this.#indexedFields){
-      await this.#index.set(itemId,data);
-      await this.#data.delete(itemId);
-      return;
-    }
-
     const indexEntry = {};
     const dataEntry = {};
     for(const key in data){
@@ -131,7 +144,7 @@ export default class List{
         )
       ) : data[key];
 
-      if(this.#indexedFields.includes(key))
+      if(!this.#indexedFields || this.#indexedFields.includes(key))
         indexEntry[key] = value;
       else
         dataEntry[key] = value;

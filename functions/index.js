@@ -353,6 +353,34 @@ app.get('/list/archive',
   }
 );
 
+app.get('/settings',
+  ...database.mixed,
+  async function getListIndex(
+    {subject, query: {flatten}},
+    res
+  ){
+    const map = {};
+    
+    (await (new List(
+      'settings',
+      true
+    )).getIndex()).filter(setting => (
+      subject || setting.public == 1
+    )).forEach(({key,value}) => {
+      if(flatten)
+        map[key] = value;
+      else
+        key.split('.').reduce( (obj,key,idx,arr) => {
+          return (
+            obj[key] = arr[idx+1] ? obj[key] || {} : value
+          );
+        },map);
+    });
+
+    res.send(map);
+  }
+);
+
 /* ---------- Generic Error handling ---------- */
 
 app.use(

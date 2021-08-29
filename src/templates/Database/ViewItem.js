@@ -41,7 +41,7 @@ export default function ViewItem({
           onSubmit={handleSubmit}
           header={<S.Capitalize>{listSchema.singular}</S.Capitalize>}
           footer={
-            <S.FooterActionLink
+            itemId ? <S.FooterActionLink
               href={{
                 pathname: `/database/delete`,
                 query:{
@@ -53,7 +53,7 @@ export default function ViewItem({
               displayHref={`/admin/users/delete?table=${listSchema.name}&record=${itemId}`}
             >
               Delete {listSchema.singular}
-            </S.FooterActionLink>
+            </S.FooterActionLink> : null
           }
         >
           {!itemId ? <>
@@ -61,28 +61,30 @@ export default function ViewItem({
           </>:null}
           <S.CardLayout>
             {listSchema.properties.map(property => (
+              console.log(property),
               property.type === 'file' ? (
                 property.accept.match(/^image\b/) ? <Fragment key={property.name}>
                   <ImageUpload
                     accept={property.accept}
-                    label={property.title}
+                    label={property.label || property.title}
                     name={property.name}
                     readOnly={property.readOnly}
                     defaultValue={item ? item[property.name] : ''}
+                    required={property.required}
                   />
                   <div/>
                 </Fragment> : null
-              ):property.type === 'select' ? (
-                null
               ):(
                 <TextField
                   key={property.name}
                   type={property.type}
-                  label={item ? property.title : undefined}
-                  placeholder={item ? '<empty>' : property.title}
+                  label={item ? property.label || property.title : undefined}
+                  placeholder={item ? '<empty>' : property.label || property.title}
                   name={property.name}
                   readOnly={property.readOnly}
+                  options={property.options}
                   defaultValue={item ? item[property.name] : ''}
+                  required={property.required}
                 />
               )
             ))}

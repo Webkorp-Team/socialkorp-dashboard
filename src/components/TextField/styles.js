@@ -13,7 +13,7 @@ export const TextField = styled.input.attrs(p=>{return{
   height: 32px;
   
   &::placeholder{
-    color: ${p => p.theme.colors.gray2};
+    color: ${p => p.theme.colors.lightText};
   }
   &:focus{
     border-bottom-color: ${p => p.theme.colors.text};
@@ -23,6 +23,25 @@ export const TextField = styled.input.attrs(p=>{return{
   }
   &:disabled{
     color: ${p => p.theme.colors.gray2};
+  }
+
+  textarea&{
+    min-height: 120px;
+    max-width: 100%;
+  }
+  select&{
+    background-color: transparent;
+    &[data-value=""]{
+      color: ${p => p.theme.colors.lightText};
+    }
+    option{
+      background-color: ${p => p.theme.colors.background};
+      color: ${p => p.theme.colors.text};
+      &:disabled{
+        color: ${p => p.theme.colors.lightText};
+      }
+    }
+    color: ${p => p.theme.colors.text};
   }
 `;
 

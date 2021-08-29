@@ -84,16 +84,18 @@ export default function Website(){
       }
       if(ev.data === 'ready')
         setPreviewReady(true);
-      // else if(ev.data.contentHeight){
+      else if(ev.data.location && ev.data.location.startsWith('/')){
+        router.push(ev.data.location);
+      // }else if(ev.data.contentHeight){
         // iframeRef.current.style.height = ev.data.contentHeight;
-      else if(ev.data.state)
+      }else if(ev.data.state)
         setEditorState(ev.data.state.pageDraft);
     };
     window.addEventListener('message',listener);
     return ()=> {
       window.removeEventListener('message',listener);
     };
-  },[editorState,publishedState,iframeRef]);
+  },[editorState,publishedState,iframeRef,router]);
 
   const [disabled, setDisabled] = useState(false);
   const [showPwConfirmation, setShowPwConfirmation] = useState(false);

@@ -51,8 +51,9 @@ export default function DeleteItem({
             ):(
               <TextField
                 key={property.name}
-                type="text"
-                label={property.title}
+                type={property.type}
+                options={property.options}
+                label={property.label||property.title}
                 placeholder={'<empty>'}
                 readOnly={true}
                 value={item[property.name]}

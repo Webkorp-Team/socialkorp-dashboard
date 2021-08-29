@@ -22,12 +22,17 @@ export default function Database({
     ))
   ),[listSchema]);
 
+  const canAdd = (
+    (!listSchema.adminOperations || listSchema.adminOperations.create)
+    && (!listSchema.maxItems || (items && items.length < listSchema.maxItems))
+  );
+
   return <WorkspaceRoot {...props}>
     <WorkspaceTitle>{listSchema.title}</WorkspaceTitle>
     <WorkspaceSectionTitle>
       <div>All records</div>
       <div>
-        {listSchema.adminOperations && !listSchema.adminOperations.create ? null : (
+        {!canAdd ? null : (
           <S.WorkspaceButton href={`/database/insert?table=${listSchema.name}`}>
             <Icon>{listSchema.materialIcons?.create || 'add'}</Icon>
             Add {listSchema.singular}
@@ -41,7 +46,7 @@ export default function Database({
         {items && items.length === 0 ? (
           <S.TableHeadCell>This list is empty</S.TableHeadCell>
         ) : indexedProperties.map(property => (
-          <S.TableHeadCell key={property.name}>{property.title}</S.TableHeadCell>
+          <S.TableHeadCell key={property.name}>{property.label||property.title}</S.TableHeadCell>
         ))}
       </S.TableHead>
 
@@ -50,7 +55,12 @@ export default function Database({
           <Link key={idx} href={`/database/view?table=${listSchema.name}&record=${item._id}`}><a>
             <S.TableRow>
               {indexedProperties.map(property => (
-                <S.TableCell key={property.name}>{item[property.name] || <small>{"<empty>"}</small>}</S.TableCell>
+                <S.TableCell key={property.name}>{
+                  item[property.name] ? (
+                    property.options?.filter(({value}) => value == item[property.name])[0]?.label
+                    || item[property.name]
+                  ) : <small>{"<empty>"}</small>
+                }</S.TableCell>
               ))}
             </S.TableRow>
           </a></Link>

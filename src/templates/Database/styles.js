@@ -10,7 +10,7 @@ export const Table = styled.div`
 export const TableHead = styled.div`
   display: grid;
   width: 100%;
-  grid-template-columns: repeat(5,200px);
+  grid-template-columns: repeat(5,300px);
 `;
 
 export const TableRow = styled(TableHead)`
@@ -106,6 +106,10 @@ export const CardLayout = styled.div`
   [data-slim=true] &{
     grid-template-columns: 1fr;
     max-width: 400px;
+  }
+  & > textarea,
+  & > [data-type=textarea]{
+    grid-column: 1/3;
   }
 `;
 export const WorkspaceButton = styled(Button)`
