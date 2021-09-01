@@ -26,7 +26,7 @@ export const TextField = styled.input.attrs(p=>{return{
   }
 
   textarea&{
-    min-height: 120px;
+    min-height: 180px;
     max-width: 100%;
   }
   select&{
