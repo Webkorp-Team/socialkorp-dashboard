@@ -4,6 +4,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import crc32 from 'fast-crc32c';
 import Storage from "../storage/index.js";
+import { logger } from "firebase-functions";
 
 function sha256(data){
   return crypto.createHash('sha256').update(data).digest('hex');
@@ -46,6 +47,7 @@ export default class List{
   #data;
   #archive;
   #accessControl;
+  #authenticatedUser;
   #indexedFields;
   #listName;
   #schema;
@@ -75,6 +77,7 @@ export default class List{
     };
 
     this.#schema = schema;
+    this.#authenticatedUser = authenticatedUser;
   }
   async #get(itemId){
     const index = await this.#index.get(itemId);
@@ -94,13 +97,13 @@ export default class List{
     if(!this.#accessControl.read)
       throw new UnauthorizedError();
 
-    const data = this.#get(itemId);
+    const data = await this.#get(itemId);
 
     const countPublicReadsAs  = this.#schema.countPublicReads?.as;
 
-    if(countPublicReadsAs){
+    if(!this.#authenticatedUser && countPublicReadsAs){
       data[countPublicReadsAs] = (Number(data[countPublicReadsAs])||0)+1;
-      this.#set(itemId,data);
+      await this.#set(itemId,data);
     }
 
     return data;
@@ -129,13 +132,25 @@ export default class List{
 
     const data = Object.assign({},_data);
 
-    for(const evalProp of (this.#schema.evals||[]))
-      data[evalProp.name] = (function(){return eval(evalProp.expression);}).bind(data)();
+    for(const evalProp of (this.#schema.evals||[])){
+      data[evalProp.name] = (
+        function(){
+          try{
+            return eval(evalProp.expression);
+          }catch(e){
+            logger.error(e);
+            return this[evalProp.name];
+          }
+        }
+      ).bind(data)();
+      if(data[evalProp.name] === undefined)
+        data[evalProp.name] = null;
+    }
 
     const indexEntry = {};
     const dataEntry = {};
     for(const key in data){
-      const value = data[key].match(/^data:[^;]*;base64,/) ? (
+      const value = data[key]?.match?.(/^data:[^;]*;base64,/) ? (
         await Storage.writeDataUrl(
           `${this.#listName}-list/${itemId}/${key}-${crc32.calculate(data[key])}`,
           data[key]
@@ -163,7 +178,7 @@ export default class List{
         throw new UnauthorizedError();
     }
 
-    this.#set(itemId,data);
+    await this.#set(itemId,data);
   }
 
   async insert(data){ // returns itemId
