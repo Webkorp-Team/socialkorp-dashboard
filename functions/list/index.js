@@ -48,7 +48,7 @@ export default class List{
   #accessControl;
   #indexedFields;
   #listName;
-  #sort;
+  #schema;
 
   constructor(listName,authenticatedUser=null){
     this.#index = new Database('lists-index').collection(listName);
@@ -63,10 +63,8 @@ export default class List{
     if(!schema)
       throw new NotFoundError('Unknown list');
 
-    this.#sort = schema.sort;
-
     this.#indexedFields = schema.index || null;
-
+    
     const ops = schema.publicAccess;
     this.#accessControl = {
       read: authenticatedUser ? true : ops.read || false,
@@ -75,31 +73,37 @@ export default class List{
       update: authenticatedUser ? true : ops.update || ops.write || false,
       delete: authenticatedUser ? true : ops.delete || ops.write || false,
     };
-  }
 
+    this.#schema = schema;
+  }
+  async #get(itemId){
+    const index = await this.#index.get(itemId);
+    const data = await this.#data.get(itemId) || {};
+
+    if(index)
+      return {...index,...data};
+    
+    const archive = await this.#archive.get(itemId);
+    
+    if(archive)
+      return {...archive,...data};
+
+    throw new NotFoundError();
+  }
   async get(itemId){
     if(!this.#accessControl.read)
       throw new UnauthorizedError();
 
-    const index = await this.#index.get(itemId);
-    const data = await this.#data.get(itemId);
-    
-    if(index && data)
-      return {...index,...data};
-    else if(index)
-      return index;
+    const data = this.#get(itemId);
 
-    const archive = await this.#archive.get(itemId);
+    const countPublicReadsAs  = this.#schema.countPublicReads?.as;
 
-    if(archive && data)
-      return {...archive,...data};
-    if(archive)
-      return archive;
+    if(countPublicReadsAs){
+      data[countPublicReadsAs] = (Number(data[countPublicReadsAs])||0)+1;
+      this.#set(itemId,data);
+    }
 
-    if(data)
-      throw new Error('Found a data entry without a matching index');
-
-    throw new NotFoundError();
+    return data;
   }
   async getIndex(){
     if(!this.#accessControl.read)
@@ -107,7 +111,7 @@ export default class List{
 
     const result = await this.#index.getAll();
 
-    return sort(result,this.#sort);
+    return sort(result,this.#schema.sort);
   }
   async getArchived(){
     if(!this.#accessControl.read)
@@ -115,24 +119,18 @@ export default class List{
 
     const result = await this.#archive.getAll();
 
-    return sort(result,this.#sort);
+    return sort(result,this.#schema.sort);
   }
 
-  async set(itemId,data){
-    const ac = this.#accessControl;
-    if(!ac.create && !ac.update)
-      throw new UnauthorizedError(); 
-    if(!ac.create || !ac.update){
-      const exists = Boolean(await this.#index.get(itemId));
-      if(exists && !ac.update)
-        throw new UnauthorizedError();
-      if(!exists && !ac.create)
-        throw new UnauthorizedError();
-    }
-
+  async #set(itemId,_data){
     const archiveEntry = await this.#archive.get(itemId);
     if(archiveEntry)
       await this.#archive.delete(itemId);
+
+    const data = Object.assign({},_data);
+
+    for(const evalProp of (this.#schema.evals||[]))
+      data[evalProp.name] = (function(){return eval(evalProp.expression);}).bind(data)();
 
     const indexEntry = {};
     const dataEntry = {};
@@ -152,6 +150,20 @@ export default class List{
 
     await this.#index.set(itemId,indexEntry);
     await this.#data.set(itemId,dataEntry);
+  }
+  async set(itemId,data){
+    const ac = this.#accessControl;
+    if(!ac.create && !ac.update)
+      throw new UnauthorizedError(); 
+    if(!ac.create || !ac.update){
+      const exists = Boolean(await this.#index.get(itemId));
+      if(exists && !ac.update)
+        throw new UnauthorizedError();
+      if(!exists && !ac.create)
+        throw new UnauthorizedError();
+    }
+
+    this.#set(itemId,data);
   }
 
   async insert(data){ // returns itemId
