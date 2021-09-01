@@ -17,11 +17,14 @@ export default function Menu({
         <span>Website</span>
       </S.SectionTitle>
       <S.Section>
-        {config.pages.map(page => (
-          <S.PageLink key={page.name} href={`/website?page=${page.name}`}>
-            {page.title}
-          </S.PageLink>
-        ))}
+        {config.pages
+          .filter(page => page.sections && page.sections.length > 0)
+          .map(page => (
+            <S.PageLink key={page.name} href={`/website?page=${page.name}`}>
+              {page.title}
+            </S.PageLink>
+          ))
+        }
       </S.Section>
       <S.Separator/>
       <S.SectionTitle>
