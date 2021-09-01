@@ -12,8 +12,8 @@ const randomBytes = util.promisify(crypto.randomBytes);
 const issuer = 'socialkorp.com';
 const audience = 'admin.futurehealthspaces.com';
 
-const refreshTokenExpirationTimeInDays = 1;
-const accessTokenExpirationTimeInMinutes = 5;
+const refreshTokenExpirationTimeInDays = 30;
+const accessTokenExpirationTimeInMinutes = 30;
 
 class RefreshToken{
   static async #hash(token){
