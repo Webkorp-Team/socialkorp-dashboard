@@ -67,7 +67,7 @@ export default class List{
 
     this.#indexedFields = schema.index || null;
     
-    const ops = schema.publicAccess;
+    const ops = schema.publicAccess || {};
     this.#accessControl = {
       read: authenticatedUser ? true : ops.read || false,
       write: authenticatedUser ? true : ops.write || false,
