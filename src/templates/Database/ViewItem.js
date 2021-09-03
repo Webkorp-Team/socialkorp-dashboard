@@ -65,7 +65,14 @@ export default function ViewItem({
           </>:null}
           <S.CardLayout>
             {listSchema.properties.map(property => (
-              property.type == 'hidden' ? <div/> :
+              property.type === 'hidden' ? (
+                <input
+                  type="hidden"
+                  name={property.name}
+                  value={item ? item[property.name] : ''}
+                />
+              ) :
+              property.type === 'padding' ? <div/> :
               property.type === 'file' ? (
                 property.accept.match(/^image\b/) ? <Fragment key={property.name}>
                   <ImageUpload

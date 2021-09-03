@@ -19,7 +19,7 @@ export default function Database({
       !listSchema.index && !listSchema.listing ? true : (
         (listSchema.listing || listSchema.index).includes(property.name)
       )
-    )).filter(({type})=>type!=='hidden')
+    )).filter(({type})=>type!=='padding')
   ),[listSchema]);
 
   const canAdd = (

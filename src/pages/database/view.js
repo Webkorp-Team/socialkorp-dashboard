@@ -14,9 +14,11 @@ export default function View({}){
     record: itemId,
   } = router.query;
 
-  const listingPage = useMemo(()=>(
-    listName === 'settings' ? '/admin/settings' : `/database?table=${listName}`
-  ),[listName]);
+  const goBackToListingPage = useCallback(()=>{
+    const url =  `/database?table=${listName}`;
+    const as = listName === 'settings' ? '/admin/settings' : url;
+    router.push(url,as);
+  },[listName,router])
 
   const [item, setItem] = useState(null);
 
@@ -71,7 +73,7 @@ export default function View({}){
       itemId,
       data
     }).then(()=>{
-      router.push(listingPage);
+      goBackToListingPage();
     }).catch(()=>{
       setDisabled(false);
     }); 
@@ -81,6 +83,7 @@ export default function View({}){
     itemId,
     listSchema,
     form,
+    goBackToListingPage,
   ]);
 
 
@@ -88,7 +91,7 @@ export default function View({}){
     setForm(e.currentTarget);
   },[setForm]);
   const handleCancel = useCallback((e)=>{
-    router.push(listingPage);
+    goBackToListingPage();
   },[router]);
   const handlePwCancel = useCallback((e)=>{
     setDisabled(false);
@@ -100,7 +103,8 @@ export default function View({}){
     put();
   },[
     setShowPwConfirmation,
-    put
+    put,
+    goBackToListingPage,
   ]);
 
 

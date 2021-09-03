@@ -20,15 +20,24 @@ export default function Database(){
   
   const [items, setItems] = useState();
 
+  const [noonce, setNoonce] = useState(0);
+
   useEffect(()=>{
     if(!listName)
       return;
     setItems(items => cache[listName] || null);
+    var timeout;
     Api.get('/list/index',{listName}).then(list => {
       setItems(list);
       cache[listName] = list;
+      timeout = setTimeout(()=>{
+        setNoonce(x=>x+1);
+      },5000);
     }).catch(()=>{});
-  },[listName]);
+    return ()=>{
+      clearTimeout(timeout);
+    };
+  },[listName,noonce]);
 
   return !listSchema ? null : <>
     <DatabaseTemplate items={items} listSchema={listSchema}/>
