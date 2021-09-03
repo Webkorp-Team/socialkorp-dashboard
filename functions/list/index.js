@@ -149,18 +149,27 @@ export default class List{
 
     const indexEntry = {};
     const dataEntry = {};
-    for(const key in data){
-      const value = data[key]?.match?.(/^data:[^;]*;base64,/) ? (
-        await Storage.writeDataUrl(
-          `${this.#listName}-list/${itemId}/${key}-${crc32.calculate(data[key])}`,
-          data[key]
-        )
-      ) : data[key];
+    for(const property of this.#schema.properties){
+      var value;
 
-      if(!this.#indexedFields || this.#indexedFields.includes(key))
-        indexEntry[key] = value;
+      value = data[property.name];
+
+      value = await this.#processDataUrl(
+        itemId,
+        property.name,
+        value
+      );
+
+      value = (
+        ["",undefined,null].includes(value)
+        ? (property.defaultValue || null)
+        : value
+      );
+
+      if(!this.#indexedFields || this.#indexedFields.includes(property.name))
+        indexEntry[property.name] = value;
       else
-        dataEntry[key] = value;
+        dataEntry[property.name] = value;
     }
 
     await this.#index.set(itemId,indexEntry);
@@ -197,6 +206,15 @@ export default class List{
       throw new NotFoundError();
     await this.#archive.set(itemId,indexEntry);
     await this.#index.delete(itemId);
+  }
+
+  async #processDataUrl(itemId,key,value){
+    return value?.match?.(/^data:[^;]*;base64,/) ? (
+      await Storage.writeDataUrl(
+        `${this.#schema.name}-list/${itemId}/${key}-${crc32.calculate(value)}`,
+        value
+      )
+    ) : value;
   }
 
 }
