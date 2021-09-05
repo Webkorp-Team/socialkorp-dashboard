@@ -3,14 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "concurrently --names dashboard,firebase \"npm run next-dev\" \"npm run emulators\"",
+    "build": "npm run handle-config && next build && next export -o build",
+    "deploy": "npm run build && firebase deploy --only hosting:admin",
+    "deploy-all": "npm run deploy-functions && npm run deploy",
+    
     "handle-upper-level-config": "cd .. && npm run handle-config",
-    "handle-config": "npm run handle-upper-level-config && node copy-config.js",
-    "dev": "NODE_ENV='development' npm run handle-config && NODE_ENV='development' node server.js",
+    "handle-config": "npm run handle-upper-level-config && node handle-config.js",
+    "next-dev": "NODE_ENV='development' npm run handle-config && NODE_ENV='development' node server.js",
     "emulators": "cd functions && npm run init && cd .. && firebase emulators:start",
-    "build": "npm run handle-config && next build && npm run export",
-    "export": "next export -o build",
-    "start": "next start",
-    "deploy": "npm run build && firebase deploy --only hosting:admin"
+    "deploy-functions": "cd functions && npm run deploy"
   },
   "dependencies": {
     "@babel/core": "^7.15.0",
@@ -32,6 +34,7 @@
   },
   "devDependencies": {
     "babel-plugin-styled-components": "^1.12.0",
+    "concurrently": "^6.2.1",
     "redux-devtools-extension": "^2.13.9",
     "terser-webpack-plugin": "^5.1.4"
   }
