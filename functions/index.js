@@ -9,6 +9,8 @@ import Users from './users/index.js';
 import Website from './website/index.js';
 import { MissingParameterError, NotFoundError, UnauthorizedError } from './errors.js';
 import List from './list/index.js';
+import Settings from './settings/index.js';
+import Email from './email/index.js';
 
 /* ----------- Common middleware settings ------------ */
 
@@ -353,31 +355,41 @@ app.get('/list/archive',
   }
 );
 
+/* --------------- Settings -------------------- */
+
 app.get('/settings',
   ...database.mixed,
-  async function getListIndex(
+  async function getSettings(
     {subject, query: {flatten}},
     res
   ){
-    const map = {};
-    
-    (await (new List(
-      'settings',
-      true
-    )).getIndex()).filter(setting => (
-      subject || setting.public == 1
-    )).forEach(({key,value}) => {
-      if(flatten)
-        map[key] = value;
-      else
-        key.split('.').reduce( (obj,key,idx,arr) => {
-          return (
-            obj[key] = arr[idx+1] ? obj[key] || {} : value
-          );
-        },map);
-    });
+    res.send(await Settings.getAll(
+      flatten,
+      subject
+    ));
+  }
+);
 
-    res.send(map);
+/* --------------- Email -------------------- */
+
+app.post('/email/send',
+  ...website.public,
+  async function sendEmail(
+    {body: {template,params}},
+    res
+  ){
+    await Email.send(template,params);
+    res.sendStatus(204);
+  }
+);
+app.post('/newsletter/subscribe',
+  ...website.public,
+  async function subscribeNewsletter(
+    {body: {email}},
+    res
+  ){
+    await Email.subscribe(email);
+    res.sendStatus(204);
   }
 );
 

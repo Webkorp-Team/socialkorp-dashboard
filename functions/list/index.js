@@ -1,18 +1,14 @@
 import Database from "../database/index.js";
 import { NotFoundError, UnauthorizedError } from "../errors.js";
-import fs from 'fs';
 import crypto from 'crypto';
 import crc32 from 'fast-crc32c';
 import Storage from "../storage/index.js";
 import { logger } from "firebase-functions";
+import websiteConfig from '../website.config.js';
 
 function sha256(data){
   return crypto.createHash('sha256').update(data).digest('hex');
 }
-
-const config = JSON.parse(
-  fs.readFileSync('website.config.json')
-);
 
 export async function generateId(collection){
   var id;
@@ -59,7 +55,7 @@ export default class List{
     this.#listName = listName;
 
     const schema = (
-      config.lists.filter(list => list.name === listName)[0]
+      websiteConfig.lists.filter(list => list.name === listName)[0]
     );
 
     if(!schema)
