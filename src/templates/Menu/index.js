@@ -32,7 +32,7 @@ export default function Menu({
         <span>Database</span>
       </S.SectionTitle>
       <S.Section>
-        {config.lists.filter(({name}) => name !== 'settings').map(list => (
+        {config.lists.filter(({hidden}) => !hidden).map(list => (
           <S.PageLink key={list.name} href={`/database?table=${list.name}`}>
             {list.title}
           </S.PageLink>

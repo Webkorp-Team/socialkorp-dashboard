@@ -54,6 +54,9 @@ export const Preview = styled.img`
   ${browseButton}
   min-height: 10px;
   max-height: 250px;
+  &[data-dimmed=true]{
+    opacity: 0.5;
+  }
 `;
 
 export const HelpText = styled.div`

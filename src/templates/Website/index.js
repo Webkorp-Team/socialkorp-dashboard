@@ -1,11 +1,13 @@
 import WorkspaceSectionTitle from "components/WorkspaceSectionTitle";
 import WorkspaceTitle from "components/WorkspaceTitle";
 import WorkspaceRoot from 'components/WorkspaceRoot';
-import { useEffect,useState } from 'react';
+import { useEffect,useRef,useState } from 'react';
 import * as S from './styles';
 import Link from "next/link";
 import ProgressBar from "components/ProgressBar";
 import styled, { withTheme } from 'styled-components';
+import Meta from "./Meta";
+import { useCallback } from "react/cjs/react.development";
 
 function _Website({
   pageName,
@@ -16,17 +18,34 @@ function _Website({
   saved=false,
   onSave=()=>{},
   onDiscard=()=>{},
+  meta={},
+  commonMeta={},
+  onMetaChange=(meta)=>{},
   iframeRef,
   ready=true,
   theme
 }){
 
-  return <WorkspaceRoot>
+  const [tab, setTab] = useState('preview'); // preview | meta
+
+  const handleCtrlS = useCallback(e => {
+    if(e.key !== 's' || !e.ctrlKey)
+      return true;
+    e.preventDefault();
+    if(modified && !disabled)
+      onSave(e);
+    return false;
+  },[modified,disabled,onSave]);
+
+  return <WorkspaceRoot onKeyDown={handleCtrlS}>
     <WorkspaceTitle>{pageTitle}</WorkspaceTitle>
     <WorkspaceSectionTitle>
       <div>
-        <S.SectionLink data-active={true}>
-          Editor
+        <S.SectionLink onClick={()=>setTab('preview')} data-active={tab === 'preview'}>
+          Page preview
+        </S.SectionLink>
+        <S.SectionLink onClick={()=>setTab('meta')} data-active={tab === 'meta'}>
+          SEO + meta tags
         </S.SectionLink>
       </div>
       <div>
@@ -39,7 +58,8 @@ function _Website({
       </div>
     </WorkspaceSectionTitle>
     { !ready ? <ProgressBar/> : null }
-    <S.Iframe data-visible={ready} ref={iframeRef} src={`${url}/preview?page=${pageName}&bg=${encodeURIComponent(theme.colors.contentBackground)}`}/>
+    <S.Iframe data-visible={ready && tab === 'preview'} ref={iframeRef} src={`${url}/preview?page=${pageName}&bg=${encodeURIComponent(theme.colors.contentBackground)}`}/>
+    <Meta visible={ready && tab === 'meta'} meta={meta} commonMeta={commonMeta} onChange={onMetaChange}/>
   </WorkspaceRoot>;
 }
 

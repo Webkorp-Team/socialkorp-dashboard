@@ -41,6 +41,28 @@ export default function Website(){
     },'*');
   },[iframeRef]);
 
+  const [commonMeta, setCommonMeta] = useState(undefined);
+  useEffect(()=>{
+    if(!pageName)
+      return;
+    Api.get('/website/page',{name:'common'}).then(state => {
+      setCommonMeta(state.meta || {});
+    });
+  },[pageName]);
+
+  const handleMetaChange = useCallback(meta => {
+    const newState = {
+      ...(editorState || publishedState),
+      meta
+    };
+    setEditorState(newState);
+    postPageState(newState);
+  },[editorState,postPageState]);
+
+  const meta = useMemo(()=>(
+    editorState?.meta || publishedState?.meta || {}
+  ),[editorState,publishedState]);
+
   const updatePublishedState = useCallback(()=>{
     Api.get('/website/page',{name:pageName}).then((state)=>{
       setPublishedState(state)
@@ -86,16 +108,16 @@ export default function Website(){
         setPreviewReady(true);
       else if(ev.data.location && ev.data.location.startsWith('/')){
         router.push(ev.data.location);
-      // }else if(ev.data.contentHeight){
-        // iframeRef.current.style.height = ev.data.contentHeight;
       }else if(ev.data.state)
         setEditorState(ev.data.state.pageDraft);
+      else if(ev.data.save && modified && !disabled)
+        handleSave(ev);
     };
     window.addEventListener('message',listener);
     return ()=> {
       window.removeEventListener('message',listener);
     };
-  },[editorState,publishedState,iframeRef,router]);
+  },[editorState,publishedState,iframeRef,router,modified,disabled,handleSave]);
 
   const [disabled, setDisabled] = useState(false);
   const [showPwConfirmation, setShowPwConfirmation] = useState(false);
@@ -175,7 +197,10 @@ export default function Website(){
       saved={saved}
       onSave={handleSave}
       onDiscard={handleDiscard}
-      ready={Boolean(previewReady && publishedState)}
+      meta={meta}
+      commonMeta={commonMeta}
+      onMetaChange={handleMetaChange}
+      ready={Boolean(commonMeta && previewReady && publishedState)}
     /> : null}
 
   </>;

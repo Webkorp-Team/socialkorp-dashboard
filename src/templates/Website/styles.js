@@ -8,6 +8,8 @@ export const Iframe = styled.iframe`
   background-color: ${p => p.theme.colors.contentBackground};
   &[data-visible=false]{
     opacity: 0;
+    height: 0;
+    margin-top: 0;
   }
 `;
 export const ActionButton = styled(Button)`
@@ -35,5 +37,27 @@ export const SectionLink = styled.a`
   }
   & + &{
     border-left: 1px solid ${p => p.theme.colors.lightText};
+  }
+`;
+
+export const MetaTabLayout = styled.div`
+  margin-top: 30px;
+  max-width: 800px;
+  &[data-visible=false]{
+    display: none;
+  }
+`;
+export const CardLayout = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 22px;
+  row-gap: 50px;
+  [data-slim=true] &{
+    grid-template-columns: 1fr;
+    max-width: 400px;
+  }
+  & > textarea,
+  & > [data-type=textarea]{
+    grid-column: 1/3;
   }
 `;
