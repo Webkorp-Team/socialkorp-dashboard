@@ -13,7 +13,7 @@ function usePrevious(value) {
   return ref.current;
 }
 
-const url = (process.env.NODE_ENV === 'development' ? config.devUrl : null) || config.url;
+const url = (process.env.NODE_ENV === 'development' ? config.devUrls.website : null) || config.deploy.url;
 
 export default function Website(){
 
