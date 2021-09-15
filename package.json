@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "handle-upper-level-config": "cd .. && npm run handle-config",
-    "handle-config": "npm run handle-upper-level-config && node copy-config.js",
+    "handle-config": "npm run handle-upper-level-config && node handle-config.js",
     "dev": "NODE_ENV='development' npm run handle-config && NODE_ENV='development' node server.js",
     "emulators": "cd functions && npm run init && cd .. && firebase emulators:start",
     "build": "npm run handle-config && next build && npm run export",

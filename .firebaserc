@@ -1,14 +1,1 @@
-{
-  "projects": {
-    "default": "future-healthspaces-website"
-  },
-  "targets": {
-    "future-healthspaces-website": {
-      "hosting": {
-        "admin": [
-          "future-healthspaces-admin"
-        ]
-      }
-    }
-  }
-}
+{"projects":{"default":"example-website"},"targets":{"example-website":{"hosting":{"admin":["example-admin"]}}}}
