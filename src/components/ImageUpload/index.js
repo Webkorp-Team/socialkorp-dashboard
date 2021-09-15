@@ -49,9 +49,10 @@ export default function ImageUpload({
 
   useEffect(()=>{
     const listener = onChange;
-    refHiddenInput.current.addEventListener('change',listener);
+    const input = refHiddenInput.current;
+    input.addEventListener('change',listener);
     return ()=>{
-      refHiddenInput.current.removeEventListener('change',listener);
+      input.removeEventListener('change',listener);
     };
   },[onChange]);
 
