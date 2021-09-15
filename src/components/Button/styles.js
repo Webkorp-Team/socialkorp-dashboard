@@ -20,7 +20,7 @@ export const Button = styled.button`
     margin-right: 12px;
   }
 
-  color: ${p => p.theme.colors.textOverPrimary};
+
   border-radius: 2px;
 
   box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.12), 0px 2px 2px rgba(0, 0, 0, 0.24);
@@ -28,8 +28,10 @@ export const Button = styled.button`
   cursor: pointer;
 
   background-color: ${p => p.theme.colors.primary};
+  color: ${p => p.theme.colors.textOverPrimary};
   &[data-variant=secondary]{
     background-color: ${p => p.theme.colors.cardBackground};
+    color: ${p => p.theme.colors.text};
   }
 
   &:hover,&:focus{
