@@ -43,3 +43,6 @@ firebase-debug.log
 src/api/website.config.json
 website.config.json
 functions/website.config.json
+
+# user defined assets
+public/user-defined-assets
