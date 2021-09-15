@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 const WorkspaceSectionTitle = styled.h2`
-  
+
 
   font-size: 16px;
   line-height: 16px;
@@ -10,10 +10,10 @@ const WorkspaceSectionTitle = styled.h2`
 
   padding-bottom: 12px;
   border-bottom: 1px solid ${p => p.theme.colors.gray1};
-  
-  height: 50px;
 
-  margin-top: 24px;
+  /* height: 50px; */
+
+  margin-top: 48px;
 
   display: grid;
   grid-template-columns: 1fr 1fr;
