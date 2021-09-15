@@ -8,7 +8,7 @@ import escape from 'escape-html';
 const providerClasses = {
   sendinblue: Sendinblue
 };
-const emailProvider = new providerClasses[config.emails.provider]();
+const emailProvider = config.emails?.provider ? new providerClasses[config.emails.provider]() : null;
 
 const templateFiles = {};
 function getTemplateFile(filename){
@@ -52,11 +52,11 @@ export default class Email{
 
     if(!template)
       throw new NotFoundError('No such template');
-    
+
     const templateContent = getTemplateFile(template.templateFile);
 
     const settings = await Settings.getAll(true,true);
-    
+
     await emailProvider.send({
       htmlContent:     fillTemplate(templateContent,params),
       subject:         evaluateDirective(template.subject,          params,settings),
