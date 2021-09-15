@@ -7,7 +7,7 @@ import Api from 'api/Api';
 import { useRouter } from 'next/router';
 import AppFrame from 'templates/AppFrame';
 import { CurrentUserProvider } from 'use-current-user';
-import { useUpdateCurrentUserData } from 'use-current-user';
+import config from "api/website.config.json";
 
 function App({ Component, pageProps }) {
 
@@ -29,7 +29,7 @@ function App({ Component, pageProps }) {
     }
 
     setAuthInitialized(true);
-    
+
     Api.refreshToken().then(user => {
       setUser(user);
       if(router.pathname === '/')
@@ -54,7 +54,7 @@ function App({ Component, pageProps }) {
   return (
     <>
       <Head>
-        <title>Future HealthSpaces</title>
+        <title>{config.dashboard.title}</title>
         <link rel="icon" href="data:,"/>
         {/* <link rel="shortcut icon" href="/img/favicon.ico" /> */}
         {/* <meta name="description" content="A simple project starter with Nextjs" /> */}

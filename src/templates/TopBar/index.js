@@ -1,8 +1,9 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import * as S from './styles';
 import Api from 'api/Api';
 import { useRouter } from 'next/router';
 import useCurrentUser from 'use-current-user';
+import config from "api/website.config.json";
 
 export default function TopBar({
   ...props
@@ -50,7 +51,7 @@ export default function TopBar({
 
   return <S.Root>
     <S.AppTitle>
-      Future HealthSpaces
+      {config.dashboard.title}
     </S.AppTitle>
     <S.RightSideLayout>
       <S.UserAvatar>{initials}</S.UserAvatar>

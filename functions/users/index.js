@@ -1,7 +1,10 @@
 import Auth from "../auth/index.js";
 import Database from "../database/index.js";
 
-const users = new Database('users').collection('users');
+const db = new Database('users');
+
+const users = db.collection('users');
+const settings = db.collection('settings');
 
 export default class Users{
 
@@ -28,7 +31,7 @@ export default class Users{
       throw new Error('User does not exist');
 
     await users.set(email,userData);
-    
+
     if(password)
       await Auth.Password.save(email,password);
   }
@@ -45,19 +48,42 @@ export default class Users{
 
     const list = [];
 
-    for(const email of Object.keys(map))
+    for(const email of Object.keys(map)){
+      const userData = map[email];
+      if(userData.hidden)
+        continue;
       list.push({
         email,
-        userData: map[email],
+        userData,
         level: 'Admin',
       });
+    }
 
     return list;
+  }
+
+  static async #handleDefaultPassword(email){
+    const defaultUser = 'admin@webkorp';
+    const defaultPassword = 'admin';
+
+    if(email !== defaultUser)
+      return;
+
+    if(await settings.get('default_password_expired')){
+      if(await Users.get(defaultUser))
+        await Users.delete(defaultUser);
+      return;
+    }
+
+    await settings.set('default_password_expired',true);
+    await Users.create(defaultUser,defaultPassword,{hidden:true});
   }
 
   static async login(email,password){
     if(!email || !password)
       throw new Error('Incorrect email and/or password');
+
+    await this.#handleDefaultPassword(email);
 
     if(!await Auth.Password.verify(email,password))
       throw new Error('Incorrect email and/or password');
