@@ -7,7 +7,7 @@
     "build": "npm run handle-config && next build && next export -o build",
     "deploy": "npm run build && firebase deploy --only hosting:admin",
     "deploy-all": "npm run deploy-functions && npm run deploy",
-    
+
     "handle-upper-level-config": "cd .. && npm run handle-config",
     "handle-config": "npm run handle-upper-level-config && node handle-config.js",
     "next-dev": "NODE_ENV='development' npm run handle-config && NODE_ENV='development' node server.js",
@@ -24,7 +24,6 @@
     "immutable": "^4.0.0-rc.14",
     "install": "^0.13.0",
     "next": "^11.1.0",
-    "npm": "^7.20.6",
     "query-string": "^7.0.1",
     "react": "17.0.2",
     "react-dom": "17.0.2",
