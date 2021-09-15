@@ -10,7 +10,9 @@
     "build": "npm run handle-config && next build && npm run export",
     "export": "next export -o build",
     "start": "next start",
-    "deploy": "npm run build && firebase deploy --only hosting:admin"
+    "deploy": "npm run build && firebase deploy --only hosting:admin",
+    "deploy-functions": "cd functions && npm run deploy",
+    "deploy-all": "npm run deploy-functions && npm run deploy"
   },
   "dependencies": {
     "@babel/core": "^7.15.0",
