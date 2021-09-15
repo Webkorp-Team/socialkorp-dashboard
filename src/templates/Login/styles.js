@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-
+import config from 'api/website.config.json';
 
 export const Root = styled.main`
   width: 100%;
@@ -30,7 +30,7 @@ export const Card = styled.form`
   box-shadow: 0px 15px 12px rgba(0, 0, 0, 0.22), 0px 19px 38px rgba(0, 0, 0, 0.3);
   border-radius: 2px;
 
-  
+
   @media mobile{
     display: block;
     box-shadow: none;
@@ -39,11 +39,12 @@ export const Card = styled.form`
   }
 `;
 export const Logo = styled.img.attrs(({theme}) => {return{
-  alt: 'Future HealthSpaces',
+  alt: config.dashboard.title,
   src: theme.assets.logo,
 }})`
   width: 100%;
   height: auto;
+  max-height: 200px;
   pointer-events: none;
 `;
 export const Spacer = styled.div`
