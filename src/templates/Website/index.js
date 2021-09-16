@@ -1,13 +1,12 @@
 import WorkspaceSectionTitle from "components/WorkspaceSectionTitle";
 import WorkspaceTitle from "components/WorkspaceTitle";
 import WorkspaceRoot from 'components/WorkspaceRoot';
-import { useEffect,useRef,useState } from 'react';
+import { useEffect,useRef,useState,useCallback } from 'react';
 import * as S from './styles';
 import Link from "next/link";
 import ProgressBar from "components/ProgressBar";
 import styled, { withTheme } from 'styled-components';
 import Meta from "./Meta";
-import { useCallback } from "react/cjs/react.development";
 
 function _Website({
   pageName,
@@ -51,10 +50,10 @@ function _Website({
       <div>
         <S.ActionButton disabled={disabled} data-noclick={!modified} onClick={onSave}>
           {modified ? disabled ? <>Saving</> : <>Save changes</> : saved ? <>Saved</> : null}
-        </S.ActionButton>  
+        </S.ActionButton>
         <S.ActionButton disabled={disabled || !modified} variant="secondary" onClick={onDiscard}>
           Discard changes
-        </S.ActionButton>  
+        </S.ActionButton>
       </div>
     </WorkspaceSectionTitle>
     { !ready ? <ProgressBar/> : null }
