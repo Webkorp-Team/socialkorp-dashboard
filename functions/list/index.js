@@ -20,12 +20,12 @@ export async function generateId(collection){
       )
     ).substr(0,16);
   }while(collection && await collection.get(id));
-  
+
   return id;
 }
 
 function sort(array,options){
-  const {property,direction} = options || {}; 
+  const {property,direction} = options || {};
   if(!property)
     return array;
   const multiplier = direction && direction.startsWith('desc') ? -1 : 1;
@@ -36,6 +36,30 @@ function sort(array,options){
       0
     )*multiplier
   ));
+}
+
+const cache = {};
+const cached = async (type,id,ttl,fun)=>{
+  cache[type] = cache[type] || {};
+  if(
+    ttl && cache[type][id]
+    && (Date.now() - cache[type][id].timestamp < ttl)
+  )
+    return cache[type][id].content;
+
+  const result = await fun();
+
+  if(ttl)
+    cache[type][id] = {
+      timestamp: Date.now(),
+      content: result
+    };
+
+  return result;
+};
+const invalidate = (type,id)=>{
+  cache[type] = cache[type] || {};
+  cache[type][id] = null;
 }
 
 export default class List{
@@ -62,7 +86,7 @@ export default class List{
       throw new NotFoundError('Unknown list');
 
     this.#indexedFields = schema.index || null;
-    
+
     const ops = schema.publicAccess || {};
     this.#accessControl = {
       read: authenticatedUser ? true : ops.read || false,
@@ -81,9 +105,9 @@ export default class List{
 
     if(index)
       return {...index,...data};
-    
+
     const archive = await this.#archive.get(itemId);
-    
+
     if(archive)
       return {...archive,...data};
 
@@ -108,9 +132,16 @@ export default class List{
     if(!this.#accessControl.read)
       throw new UnauthorizedError();
 
-    const result = await this.#index.getAll();
-
-    return sort(result,this.#schema.sort);
+    const ttl = (this.#schema.cache?.index?.ttl || 0)*1000;
+    return cached(
+      'index',
+      this.#listName,
+      ttl,
+      async ()=>sort(
+        await this.#index.getAll(this.#schema.limit),
+        this.#schema.sort
+      )
+    );
   }
   async getArchived(){
     if(!this.#accessControl.read)
@@ -122,6 +153,8 @@ export default class List{
   }
 
   async #set(itemId,_data){
+    invalidate('index',this.#listName);
+
     const archiveEntry = await this.#archive.get(itemId);
     if(archiveEntry)
       await this.#archive.delete(itemId);
@@ -174,7 +207,7 @@ export default class List{
   async set(itemId,data){
     const ac = this.#accessControl;
     if(!ac.create && !ac.update)
-      throw new UnauthorizedError(); 
+      throw new UnauthorizedError();
     if(!ac.create || !ac.update){
       const exists = Boolean(await this.#index.get(itemId));
       if(exists && !ac.update)
