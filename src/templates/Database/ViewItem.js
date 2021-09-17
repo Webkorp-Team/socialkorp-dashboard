@@ -83,7 +83,6 @@ export default function ViewItem({
                     defaultValue={item ? item[property.name] : ''}
                     required={property.required}
                   />
-                  <div/>
                 </Fragment> : (
                   <input
                     type="hidden"
