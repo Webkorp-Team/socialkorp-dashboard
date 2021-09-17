@@ -1,5 +1,9 @@
 import * as S from './styles';
 
+const value = (v)=>(
+  v === undefined || v === null ? v : v?.toString?.()
+);
+
 export default function TextField({
   type="text",
   label=null,
@@ -14,7 +18,7 @@ export default function TextField({
           as: 'textarea'
         } : type === 'select' ? {
           as: 'select',
-          'data-value': props.defaultValue || props.value || "",
+          'data-value': value(props.defaultValue) || value(props.value) || "",
           onInput: e => {
             e.target.dataset.value = e.target.value;
           },

@@ -84,7 +84,13 @@ export default function ViewItem({
                     required={property.required}
                   />
                   <div/>
-                </Fragment> : null
+                </Fragment> : (
+                  <input
+                    type="hidden"
+                    name={property.name}
+                    value={item ? item[property.name] : ''}
+                  />
+                )
               ):(
                 <TextField
                   key={property.name}
@@ -99,7 +105,7 @@ export default function ViewItem({
                 />
               )
             ))}
-            
+
           </S.CardLayout>
           <S.CardLayout>
             <div>

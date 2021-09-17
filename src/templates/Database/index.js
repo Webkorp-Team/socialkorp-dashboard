@@ -43,10 +43,10 @@ export default function Database({
         )}
       </div>
     </WorkspaceSectionTitle>
-    
+
     {!items ? <ProgressBar/> : (
       <S.Table>
-        
+
         <S.TableHead>
           {items.length === 0 ? (
             <S.TableHeadCell>This list is empty</S.TableHeadCell>
@@ -65,10 +65,16 @@ export default function Database({
             <S.TableRow>
               {indexedProperties.map(property => (
                 <S.TableCell key={property.name}>{
-                  item[property.name] ? (
-                    property.options?.filter(({value}) => value == item[property.name])[0]?.label
+                  item[property.name] === undefined
+                  || item[property.name] === null
+                  || item[property.name]?.trim?.() === '' ?
+                  <small>{"<empty>"}</small>
+                  : (
+                    property.options?.filter(
+                      ({value}) => value?.toString?.() == item[property.name]?.toString?.()
+                    )[0]?.label
                     || item[property.name]
-                  ) : <small>{"<empty>"}</small>
+                  )
                 }</S.TableCell>
               ))}
               <S.TableCell/>
