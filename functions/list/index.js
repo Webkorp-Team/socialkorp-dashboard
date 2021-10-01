@@ -113,6 +113,16 @@ export default class List{
 
     throw new NotFoundError();
   }
+  async findOne(query){
+    const index = await this.getIndex();
+    for(const item of index){
+      if(Object.keys(query).every(property => (
+        item[property] == query[property]
+      )))
+        return await this.get(item._id);
+    }
+    throw new NotFoundError();
+  }
   async get(itemId){
     if(!this.#accessControl.read)
       throw new UnauthorizedError();

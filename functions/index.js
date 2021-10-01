@@ -280,15 +280,15 @@ app.put('/website/page',
 app.get('/list/item',
   ...database.mixed,
   async function getListItem(
-    {subject, query: {listName,itemId}},
+    {subject, query: {listName,itemId,query}},
     res
   ){
-    res.send(
-      await (new List(
-        listName,
-        subject
-      )).get(itemId)
+    const list = new List(
+      listName,
+      subject
     );
+    const result = query ? list.findOne(query) : list.get(itemId);
+    res.send(await result);
   }
 );
 
