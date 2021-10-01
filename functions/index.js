@@ -65,14 +65,21 @@ function checkElevation(req,res,next){
   return next();
 }
 
+function parseQuery(req,res,next){
+  if(req.query?._body)
+    req.query = JSON.parse(req.query._body);
+  return next();
+}
 
 /* ------------ Endpoint-specific middleware settings ---------- */
 
 // Website endpoints
-const website = { 
+const website = {
 
   // Public data fetching endpoints
-  public: [],
+  public: [
+    parseQuery,
+  ],
 };
 
 // Admin dashboard endpoints
@@ -83,7 +90,7 @@ const admin = {
   // Returns 401 on all errors
   authFlow: [
     cookieParser(),
-  ], 
+  ],
 
   // Requires a valid access token
   private: [
@@ -91,6 +98,7 @@ const admin = {
     verifyAccessToken,
     requireAuthentication,
     catchAccessTokenErrors,
+    parseQuery,
   ],
 
   // Requires an elevated access token
@@ -100,17 +108,19 @@ const admin = {
     requireAuthentication,
     catchAccessTokenErrors,
     checkElevation,
+    parseQuery,
   ],
 };
 
 const database = {
 
-  // Optional authentication. 
+  // Optional authentication.
   // Authorization is checked at higher level code.
   mixed: [
     parseBearerToken,
     verifyAccessToken,
-    catchAccessTokenErrors
+    catchAccessTokenErrors,
+    parseQuery,
   ]
 }
 
@@ -134,7 +144,7 @@ app.post('/user/login',...admin.authFlow,
     } = await Users.login(email,password);;
 
     res.cookie('refreshToken',refreshToken,refreshTokenCookieOptions);
-    
+
     return res.send({
       accessToken,
       userData
@@ -154,7 +164,7 @@ app.post('/user/refreshLogin',...admin.authFlow,
 
     if(!currentRefreshToken)
       throw new Error('Missing refresh token');
-      
+
     const {
       accessToken,
       refreshToken,
