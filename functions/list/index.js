@@ -24,10 +24,8 @@ export async function generateId(collection){
   return id;
 }
 
-function sort(array,options){
+function legacySort(array,options){
   const {property,direction} = options || {};
-  if(!property)
-    return array;
   const multiplier = direction && direction.startsWith('desc') ? -1 : 1;
   return array.sort((a,b) => (
     (
@@ -36,6 +34,24 @@ function sort(array,options){
       0
     )*multiplier
   ));
+}
+
+function sort(array,options){
+  if(!Array.isArray(options))
+    return legacySort(array,options);
+
+  const compare = (a,b) => (
+    options.reduce((value,{property,direction})=>{
+      const multiplier = direction && direction.startsWith('desc') ? -1 : 1;
+      return value || (
+        a[property] < b[property] ? -1 :
+        a[property] > b[property] ? 1 :
+        0
+      )*multiplier;
+    },0)
+  );
+
+  return array.sort(compare);
 }
 
 const cache = {};
