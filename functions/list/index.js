@@ -41,11 +41,20 @@ function sort(array,options){
     return legacySort(array,options);
 
   const compare = (a,b) => (
-    options.reduce((value,{property,direction})=>{
+    options.reduce((value,{property,direction,type})=>{
       const multiplier = direction && direction.startsWith('desc') ? -1 : 1;
+      const cast = ({
+        'number':  x => Number(x),
+        'string':  x => String(x),
+        'boolean': x => Boolean(x),
+      })[type] || (x => x);
+
+      const va = cast(a[property]);
+      const vb = cast(b[property]);
+
       return value || (
-        a[property] < b[property] ? -1 :
-        a[property] > b[property] ? 1 :
+        va < vb ? -1 :
+        va > vb ? 1 :
         0
       )*multiplier;
     },0)
