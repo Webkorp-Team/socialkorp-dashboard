@@ -64,17 +64,18 @@ export default function ViewItem({
             <S.Spacer count={2}/>
           </>:null}
           <S.CardLayout>
-            {listSchema.properties.map(property => (
+            {listSchema.properties.map((property,idx) => (
               property.type === 'hidden' ? (
                 <input
                   type="hidden"
                   name={property.name}
                   value={item ? item[property.name] : ''}
+                  key={idx}
                 />
               ) :
-              property.type === 'padding' ? <div/> :
+              property.type === 'padding' ? <div key={idx}/> :
               property.type === 'file' ? (
-                property.accept.match(/^image\b/) ? <Fragment key={property.name}>
+                property.accept.match(/^image\b/) ? <Fragment key={idx}>
                   <ImageUpload
                     accept={property.accept}
                     label={property.label || property.title}
@@ -88,11 +89,12 @@ export default function ViewItem({
                     type="hidden"
                     name={property.name}
                     value={item ? item[property.name] : ''}
+                    key={idx}
                   />
                 )
               ):(
                 <TextField
-                  key={property.name}
+                  key={idx}
                   type={property.type}
                   label={item ? property.label || property.title : undefined}
                   placeholder={item ? '<empty>' : property.label || property.title}
