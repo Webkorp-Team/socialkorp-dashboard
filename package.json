@@ -9,7 +9,7 @@
     "deploy-all": "npm run deploy-functions && npm run deploy",
     "handle-upper-level-config": "cd .. && npm run handle-config",
     "handle-config": "npm run handle-upper-level-config && node handle-config.js",
-    "next-dev": "NODE_ENV='development' npm run handle-config && NODE_ENV='development' node server.js",
+    "next-dev": "./wait-for-emulators.sh && NODE_ENV='development' npm run handle-config && NODE_ENV='development' node server.js",
     "emulators": "cd functions && npm run init && cd .. && firebase emulators:start",
     "deploy-functions": "cd functions && npm run deploy"
   },
