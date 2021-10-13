@@ -61,6 +61,13 @@ export default class Sendinblue extends EmailProvider{
     const apiKey = settings.admin.sendinblue.apiKey;
     const listId = settings.admin.sendinblue.newsletterListId;
 
+    console.log({
+      email,
+      listIds: [listId],
+      emailBlacklisted: false,
+      updateEnabled: true,
+    });
+
     await fetch('https://api.sendinblue.com/v3/contacts',{
       method: 'POST',
       headers: {
