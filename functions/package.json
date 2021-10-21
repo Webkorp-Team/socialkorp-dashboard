@@ -4,7 +4,8 @@
   "scripts": {
     "handle-config": "cd .. && yarn run handle-config",
     "gen-key": "./genkey.sh --no-overwrite",
-    "init": "yarn run handle-config && yarn run gen-key",
+    "process-email-templates": "node ./process-email-templates.js",
+    "init": "yarn run handle-config && yarn run gen-key && yarn run process-email-templates",
     "lint": "eslint .",
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
