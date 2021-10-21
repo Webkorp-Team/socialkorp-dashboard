@@ -14,7 +14,7 @@ for(const template of (config.emails?.templates||[])){
 
   fs.copyFileSync(src,dst);
 
-  template.templateFile = dst;
+  template.templateFile = path.relative(process.cwd(),dst);
 }
 
 config.emails.templatesProcessed = true;

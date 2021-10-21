@@ -15,7 +15,7 @@ const templateFiles = {};
 function getTemplateFile(filename){
   return templateFiles[filename] || (
     templateFiles[filename] = fs.readFileSync(
-      path.resolve('../../',filename)
+      path.resolve(process.cwd(),filename)
     ).toString()
   );
 }
