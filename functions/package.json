@@ -11,7 +11,8 @@
     "shell": "firebase functions:shell",
     "start": "yarn run init && yarn run shell",
     "deploy": "yarn run init && firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "watch-config": "while inotifywait -e close_write ../../website.config.yaml; do yarn handle-config; done"
   },
   "engines": {
     "node": "14"

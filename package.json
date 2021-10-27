@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently --names dashboard,firebase \"yarn run next-dev\" \"yarn run emulators\"",
+    "dev": "concurrently --names dashboard,firebase,config \"yarn run next-dev\" \"yarn run emulators\" \"yarn run watch-config\"",
     "build": "yarn run handle-config && next build && next export -o build",
     "deploy": "yarn run build && firebase deploy --only hosting:admin",
     "deploy-all": "yarn run deploy-functions && yarn run deploy",
@@ -12,7 +12,8 @@
     "next-dev": "yarn run wait-for-emulators && NODE_ENV='development' yarn run handle-config && ./scripts/wait-for-emulators.sh && NODE_ENV='development' node scripts/server.js",
     "emulators": "if ! nc -z localhost 5000; then cd functions && yarn run init && cd .. && firebase emulators:start; else echo Emulators running on localhost:5000; fi",
     "deploy-functions": "cd functions && yarn run deploy",
-    "wait-for-emulators": "./scripts/wait-for-emulators.sh"
+    "wait-for-emulators": "./scripts/wait-for-emulators.sh",
+    "watch-config": "cd functions && yarn run watch-config"
   },
   "dependencies": {
     "@babel/core": "^7.15.0",
