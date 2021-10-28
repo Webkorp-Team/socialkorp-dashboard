@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import * as S from './styles';
 
 const value = (v)=>(
@@ -7,9 +8,21 @@ const value = (v)=>(
 export default function TextField({
   type="text",
   label=null,
-  options=[],
+  options: optionsFunc=[],
   ...props
 }){
+
+  const [options, setOptions] = useState(
+    Array.isArray(optionsFunc) ? optionsFunc : []
+  );
+
+  useEffect(()=>{
+    if(typeof optionsFunc !== 'function')
+      return;
+    Promise.resolve(optionsFunc()).then(value => {
+      setOptions(value);
+    });
+  },[optionsFunc]);
 
   const field = (
     <S.TextField
@@ -25,7 +38,7 @@ export default function TextField({
           children: <>
             <option value="" disabled>{label || !props.placeholder?'':props.placeholder}</option>
             {options.map(option => (
-              <option key={option.value} value={option.value}>{option.label||option.value}</option>
+              <option key={option.value||option} value={option.value||option}>{option.label||option.value||option}</option>
             ))}
           </>
         } : {

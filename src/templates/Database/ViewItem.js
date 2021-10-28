@@ -10,6 +10,17 @@ import { useRouter } from 'next/router';
 import ProgressBar from 'components/ProgressBar';
 import ImageUpload from 'components/ImageUpload';
 import { Fragment } from 'react';
+import { getListIndex } from 'utils/use-list-index';
+
+async function fetchOptionsList({list,label,value}){
+
+  const index = await getListIndex(list);
+
+  return index.map(item => ({
+    label: item[label],
+    value: item[value],
+  }));
+}
 
 export default function ViewItem({
   item,
@@ -100,7 +111,7 @@ export default function ViewItem({
                   placeholder={item ? '<empty>' : property.label || property.title}
                   name={property.name}
                   readOnly={property.readOnly}
-                  options={property.options}
+                  options={property.options?.list ? (()=>fetchOptionsList(property.options)) : property.options}
                   defaultValue={item ? item[property.name] : ''}
                   required={property.required}
                 />
