@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import ProgressBar from 'components/ProgressBar';
 import ImageUpload from 'components/ImageUpload';
 import { Fragment } from 'react';
+import useSelectOptionsFromLists from 'utils/use-select-options-from-lists';
 
 export default function ViewItem({
   item,
@@ -28,6 +29,8 @@ export default function ViewItem({
     e.preventDefault();
     onCancel(e);
   },[onCancel]);
+
+  const properties = useSelectOptionsFromLists(listSchema.properties);
 
   return <WorkspaceRoot>
     <WorkspaceTitle>{listSchema.title}</WorkspaceTitle>
@@ -64,7 +67,7 @@ export default function ViewItem({
             <S.Spacer count={2}/>
           </>:null}
           <S.CardLayout>
-            {listSchema.properties.map((property,idx) => (
+            {properties.map((property,idx) => (
               property.type === 'hidden' ? (
                 <input
                   type="hidden"

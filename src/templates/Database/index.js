@@ -7,6 +7,7 @@ import { useEffect, useState, Fragment, useMemo } from 'react';
 import Api from 'api/Api';
 import ProgressBar from 'components/ProgressBar';
 import Link from 'next/link';
+import useSelectOptionsFromLists from 'utils/use-select-options-from-lists';
 
 export default function Database({
   items=null,
@@ -21,6 +22,8 @@ export default function Database({
       )
     )).filter(({type})=>type!=='padding')
   ),[listSchema]);
+
+  const indexedPropertiesHydrated = useSelectOptionsFromLists(indexedProperties);
 
   const canAdd = (
     (!listSchema.adminOperations || listSchema.adminOperations.create)
@@ -63,14 +66,18 @@ export default function Database({
             as={listSchema.name === 'settings' ? `/admin/settings/view&record=${item._id}` : undefined}
           >
             <S.TableRow>
-              {indexedProperties.map(property => (
+              {indexedPropertiesHydrated.map(property => (
                 <S.TableCell key={property.name}>{
                   item[property.name] === undefined
                   || item[property.name] === null
                   || item[property.name]?.trim?.() === '' ?
                   <small>{"<empty>"}</small>
-                  : (
-                    property.options?.filter(
+                  :(
+                    (
+                      property.options?.list ? (
+                        []
+                      ):property.options
+                    )?.filter(
                       ({value}) => value?.toString?.() == item[property.name]?.toString?.()
                     )[0]?.label
                     || item[property.name]
