@@ -25,7 +25,12 @@ export default function TextField({
           children: <>
             <option value="" disabled>{label || !props.placeholder?'':props.placeholder}</option>
             {options.map(option => (
-              <option key={option.value||option} value={option.value||option}>{option.label||option.value||option}</option>
+              <option
+                key={option.value === undefined ? option : option.value}
+                value={option.value === undefined ? option : option.value}
+              >
+                {option.label||option.value||option}
+              </option>
             ))}
           </>
         } : {
