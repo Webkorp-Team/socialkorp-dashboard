@@ -1,7 +1,7 @@
 import WorkspaceSectionTitle from 'components/WorkspaceSectionTitle';
 import WorkspaceTitle from 'components/WorkspaceTitle';
 import WorkspaceRoot from 'components/WorkspaceRoot';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Card, { CardSectionTitle } from 'components/Card';
 import * as S from './styles';
 import TextField from 'components/TextField';
@@ -31,6 +31,10 @@ export default function ViewItem({
   },[onCancel]);
 
   const properties = useSelectOptionsFromLists(listSchema.properties);
+  const [counter, setCounter] = useState(0);
+  useEffect(()=>{
+    setCounter(x=>x+1);
+  },[properties]);
 
   return <WorkspaceRoot>
     <WorkspaceTitle>{listSchema.title}</WorkspaceTitle>
@@ -97,7 +101,7 @@ export default function ViewItem({
                 )
               ):(
                 <TextField
-                  key={idx}
+                  key={`${idx}-${counter}`}
                   type={property.type}
                   label={item ? property.label || property.title : undefined}
                   placeholder={item ? '<empty>' : property.label || property.title}
