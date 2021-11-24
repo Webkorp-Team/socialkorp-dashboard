@@ -35,6 +35,12 @@ export const TableRow = styled(TableHead).attrs({
   & > :last-child:nth-child(2){width: 1400px;} // 1  columns
 `;
 
+export const Img = styled.img`
+  width: auto;
+  height: 43px;
+  margin-bottom: -16px;
+`;
+
 export const TableHeadCell = styled.div`
   font-size: 14px;
   line-height: 43px;

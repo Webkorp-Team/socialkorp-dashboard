@@ -72,7 +72,9 @@ export default function Database({
                   || item[property.name] === null
                   || item[property.name]?.trim?.() === '' ?
                   <small>{"<empty>"}</small>
-                  :(
+                  : item[property.name]?.startsWith?.('https://storage.googleapis.com') ? (
+                    <S.Img src={item[property.name]} alt={item[property.name]}/>
+                  ):(
                     (
                       property.options?.list ? (
                         []
