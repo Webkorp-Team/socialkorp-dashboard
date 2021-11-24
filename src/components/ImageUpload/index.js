@@ -56,23 +56,38 @@ export default function ImageUpload({
     };
   },[onChange]);
 
+  const updateValue = useCallback((src,value)=>{
+    setSrc(src);
+    setValue(value);
+    
+    refHiddenInput.current.value = value;
+    refHiddenInput.current.dispatchEvent(new Event('change'));
+  },[]);
+
   const handleChange = useCallback((e)=>{
     if(!e.target.files[0])
       return;
+    const noResize = ['image/svg','image/svg+xml'].includes(accept);
     const pngOnly = (accept === 'image/png');
-    ( pngOnly ? pngReducer : reducer ).toBlob(e.target.files[0],{max:1600}).then(resizedImage => {
+    if(noResize){
       const reader = new FileReader();
       reader.addEventListener("load", function () {
-        const src = URL.createObjectURL(resizedImage);
+        const src = URL.createObjectURL(e.target.files[0]);
         const value = reader.result;
-        setSrc(src);
-        setValue(value);
-
-        refHiddenInput.current.value = value;
-        refHiddenInput.current.dispatchEvent(new Event('change'));
+        updateValue(src,value);
       }, false);
-      reader.readAsDataURL(resizedImage);
-    });
+      reader.readAsDataURL(e.target.files[0]);
+    }else{
+      ( pngOnly ? pngReducer : reducer ).toBlob(e.target.files[0],{max:1600}).then(resizedImage => {
+        const reader = new FileReader();
+        reader.addEventListener("load", function () {
+          const src = URL.createObjectURL(resizedImage);
+          const value = reader.result;
+          updateValue(src,value);
+        }, false);
+        reader.readAsDataURL(resizedImage);
+      });
+    }
   },[accept]);
 
   return <>
