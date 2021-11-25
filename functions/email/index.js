@@ -26,7 +26,7 @@ function fillTemplate(template,params){
     ?.reduce((sum,cur) => (
       sum.replace(
         new RegExp(`\\\$${cur}\\b`),
-        escape(params[cur])
+        escape(params[cur]).replace(/\r?\n/g,'<br>')
       )
     ),template)
   ) || template;
