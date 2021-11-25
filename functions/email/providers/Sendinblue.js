@@ -59,16 +59,16 @@ export default class Sendinblue extends EmailProvider{
     const settings = await Settings.getAll(false,true);
 
     const apiKey = settings.admin.sendinblue.apiKey;
-    const listId = settings.admin.sendinblue.newsletterListId;
+    const listId = Number(settings.admin.sendinblue.newsletterListId);
 
-    console.log({
-      email,
-      listIds: [listId],
-      emailBlacklisted: false,
-      updateEnabled: true,
-    });
+    // console.log({
+    //   email,
+    //   listIds: [listId],
+    //   emailBlacklisted: false,
+    //   updateEnabled: true,
+    // });
 
-    await fetch('https://api.sendinblue.com/v3/contacts',{
+    const response = await fetch('https://api.sendinblue.com/v3/contacts',{
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -82,5 +82,8 @@ export default class Sendinblue extends EmailProvider{
         updateEnabled: true,
       }),
     });
+
+    if(!response.ok)
+      throw new Error(await response.text());
   }
 }
