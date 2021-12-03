@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import config from './website.config.js';
+const config = JSON.parse(fs.readFileSync('./website.config.json'));
 
 if(!config.emails || config.emails.templatesProcessed)
   process.exit(0);
