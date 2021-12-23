@@ -1,11 +1,12 @@
 import WorkspaceSectionTitle from 'components/WorkspaceSectionTitle';
 import WorkspaceTitle from 'components/WorkspaceTitle';
 import WorkspaceRoot from 'components/WorkspaceRoot';
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo, useEffect } from 'react';
 import Card, { CardSectionTitle } from 'components/Card';
 import * as S from './styles';
 import TextField from 'components/TextField';
 import ProgressBar from 'components/ProgressBar';
+import useSelectOptionsFromLists from 'utils/use-select-options-from-lists';
 
 export default function DeleteItem({
   item,
@@ -35,6 +36,12 @@ export default function DeleteItem({
     onCancel(e);
   },[onCancel]);
 
+  const properties = useSelectOptionsFromLists(listSchema.properties);
+  const [counter, setCounter] = useState(0);
+  useEffect(()=>{
+    setCounter(x=>x+1);
+  },[properties]);
+
   return <WorkspaceRoot>
     <WorkspaceTitle>{listSchema.title}</WorkspaceTitle>
     <WorkspaceSectionTitle>
@@ -45,12 +52,12 @@ export default function DeleteItem({
         header={<>Delete {listSchema.singular}</>}
       >
         <S.CardLayout>
-          {listSchema.properties.map(property => (
+          {properties.map((property,idx) => (
             property.type === 'file' ? (
               null
             ):(
               <TextField
-                key={property.name}
+                key={`${idx}-${counter}`}
                 type={property.type}
                 options={property.options}
                 label={property.label||property.title}
