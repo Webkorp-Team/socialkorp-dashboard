@@ -265,6 +265,7 @@ export default class List{
   async delete(itemId){
     if(!this.#accessControl.delete)
       throw new UnauthorizedError();
+    invalidate('index',this.#listName);
     const indexEntry = await this.#index.get(itemId);
     if(!indexEntry)
       throw new NotFoundError();
