@@ -287,8 +287,23 @@ app.get('/list/item',
       listName,
       subject
     );
-    const result = query ? list.findOne(query) : list.get(itemId);
-    res.send(await result);
+    const resultPromise = query ? list.findOne(query) : list.get(itemId);
+    res.send(await resultPromise);
+  }
+);
+
+app.get('/list/items',
+  ...database.mixed,
+  async function queryListItems(
+    {subject, query: {listName,query}},
+    res
+  ){
+    const list = new List(
+      listName,
+      subject
+    );
+    const result = await list.findMany(query);
+    res.send(result);
   }
 );
 

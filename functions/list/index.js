@@ -148,6 +148,17 @@ export default class List{
     }
     throw new NotFoundError();
   }
+  async findMany(query){
+    const index = await this.getIndex();
+    const result = [];
+    for(const item of index){
+      if(Object.keys(query).every(property => (
+        item[property] == query[property]
+      )))
+        result.push(await this.get(item._id));
+    }
+    return result;
+  }
   async get(itemId){
     if(!this.#accessControl.read)
       throw new UnauthorizedError();
